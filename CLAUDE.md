@@ -49,6 +49,7 @@ Do not invent endpoints: read `docs/api/` (or ask me) before writing any API cod
 - An account can have several applications (one per business). Sign-in opens "My applications" (`features/applications/`); tapping one opens it (start screen, or status once submitted), and "New application" asks for a business name. Login opens no application; register and create open the new one.
 - Drafts are kept per application (Hive key `app:<id>`). After the list loads, drafts for applications not on the account are deleted, so one account never sees another's answers. Sign out deletes every draft.
 - Form errors stay hidden until the first Next on a step, then update as the user types.
+- Text fields have no border in any state (theme-wide): a grey fill, a sky tint when focused, a red tint with the message underneath on error.
 - Partner 1 is the owner. Step 3 "Same as owner" (default on) refers to them. At least one transaction processor is required.
 
 ## Commands

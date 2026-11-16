@@ -10,8 +10,7 @@ import '../../../shared/widgets/brand_logo.dart';
 /// Shared layout for the sign-in screens.
 ///
 /// A navy header with the logo, title and intro sits over a white sheet that
-/// holds the form. No cards or outlines: fields are softly filled and only
-/// show a border while focused. Content is capped at a comfortable reading
+/// holds the form. No cards or outlines. Content is capped at a comfortable reading
 /// width on tablets. When [onBack] is set, a back arrow appears and the
 /// phone's Back button does the same thing, so these screens are never a
 /// dead end.
@@ -41,26 +40,11 @@ class AuthScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
 
     Widget constrained(Widget child) => Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: maxContentWidth),
         child: child,
-      ),
-    );
-
-    final softField = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppTheme.radius),
-      borderSide: BorderSide.none,
-    );
-    final formTheme = theme.copyWith(
-      inputDecorationTheme: theme.inputDecorationTheme.copyWith(
-        fillColor: colors.surfaceContainerHigh,
-        border: softField,
-        enabledBorder: softField,
-        disabledBorder: softField,
-        errorBorder: softField,
       ),
     );
 
@@ -123,18 +107,15 @@ class AuthScaffold extends StatelessWidget {
         child: constrained(
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
-            child: Theme(
-              data: formTheme,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ...children,
-                  if (footer case final footer?) ...[
-                    const SizedBox(height: 16),
-                    footer,
-                  ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ...children,
+                if (footer case final footer?) ...[
+                  const SizedBox(height: 16),
+                  footer,
                 ],
-              ),
+              ],
             ),
           ),
         ),

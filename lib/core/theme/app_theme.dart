@@ -73,11 +73,22 @@ class AppTheme {
       borderRadius: BorderRadius.circular(radius),
     );
     const buttonText = TextStyle(fontSize: 16, fontWeight: FontWeight.w700);
-    OutlineInputBorder inputBorder(Color color, [double width = 1]) =>
-        OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius),
-          borderSide: BorderSide(color: color, width: width),
-        );
+    // Text fields have no border in any state: the fill shows focus (sky
+    // tint) and errors (red tint), and the error text sits underneath.
+    final noBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(radius),
+      borderSide: BorderSide.none,
+    );
+    final fieldFill = WidgetStateColor.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return colors.surfaceContainerLow;
+      }
+      if (states.contains(WidgetState.error)) return colors.errorContainer;
+      if (states.contains(WidgetState.focused)) {
+        return colors.primaryContainer;
+      }
+      return isLight ? colors.surfaceContainerHigh : colors.surfaceContainer;
+    });
 
     final base = ThemeData(
       colorScheme: colors,
@@ -133,13 +144,13 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: isLight ? _fieldFill : colors.surfaceContainerHigh,
-        border: inputBorder(colors.outline),
-        enabledBorder: inputBorder(colors.outline),
-        focusedBorder: inputBorder(colors.primary, 2),
-        errorBorder: inputBorder(colors.error),
-        focusedErrorBorder: inputBorder(colors.error, 2),
-        disabledBorder: inputBorder(colors.outlineVariant),
+        fillColor: fieldFill,
+        border: noBorder,
+        enabledBorder: noBorder,
+        focusedBorder: noBorder,
+        errorBorder: noBorder,
+        focusedErrorBorder: noBorder,
+        disabledBorder: noBorder,
         labelStyle: TextStyle(color: colors.onSurfaceVariant),
         floatingLabelStyle: TextStyle(
           color: colors.secondary,
