@@ -1,0 +1,85 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Secrets and credentials: never commit these.
+.env
+.env.*
+*.env
+secrets.json
+*.pem
+*.p12
+*.pfx
+*.key
+*.keystore
+*.jks
+key.properties
+**/key.properties
+local.properties
+**/local.properties
+google-services.json
+GoogleService-Info.plist
+**/google-services.json
+**/GoogleService-Info.plist
+*.mobileprovision
+ios/**/*.p8
+ios/Runner/Config*.xcconfig
+
+# Postman exports can hold tokens and test passwords.
+*.postman_environment.json
+*.postman_globals.json
+*postman*environment*.json
+# API collections are fine to share, but keep them out of the app repo unless
+# you review them first.
+*.postman_collection.json
+
+# Local run output
+flutter_run*.log
+*.log
+
+# Gradle build output
+android/build/
+android/.gradle/
+android/app/.cxx/
