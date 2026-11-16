@@ -46,7 +46,8 @@ Do not invent endpoints: read `docs/api/` (or ask me) before writing any API cod
 - Brand: primary `#0155EB`, secondary `#24397C`, white surfaces (`lib/core/theme/app_theme.dart`). The app is locked to the light theme (`themeMode: ThemeMode.light`); dark mode is defined but off.
 - Submit/status go through `ApplicationRepository` (mock until wired). After a submit the draft's `submitted` flag sends Welcome to the status screen. Field corrections are fixed in the wizard and resubmitted from Review; document corrections are re-uploaded on the status screen.
 - Secrets are git-ignored (`.env*`, signing keys, Firebase configs, Postman environments). Never commit them.
-- The local draft carries its `applicationId`; signing in to a different application discards it, so one account never sees another's answers.
+- An account can have several applications (one per business). Sign-in opens "My applications" (`features/applications/`); tapping one opens it (start screen, or status once submitted), and "New application" asks for a business name. Login opens no application; register and create open the new one.
+- Drafts are kept per application (Hive key `app:<id>`). After the list loads, drafts for applications not on the account are deleted, so one account never sees another's answers. Sign out deletes every draft.
 - Form errors stay hidden until the first Next on a step, then update as the user types.
 - Partner 1 is the owner. Step 3 "Same as owner" (default on) refers to them. At least one transaction processor is required.
 
@@ -72,7 +73,7 @@ lib/
 Each feature: `data/` (models, repositories), `logic/` (blocs), `ui/` (screens, widgets).
 
 ## App flow
-Welcome/Login -> Step 1 -> Step 2 -> Step 3 -> Review -> Status.
+Login -> My applications -> Welcome (per application) -> Step 1 -> Step 2 -> Step 3 -> Review -> Status.
 Wizard with progress indicator, Back/Next, and auto-saved drafts so users can resume.
 
 ## Step 1: Initial business details

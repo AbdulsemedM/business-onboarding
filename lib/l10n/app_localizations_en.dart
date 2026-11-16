@@ -85,11 +85,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your session expired. Please sign in again.';
 
   @override
-  String get authBusinessNameTitle => 'Name your business';
+  String get authBusinessNameTitle => 'New application';
 
   @override
   String get authBusinessNameBody =>
-      'Your account doesn\'t have an application yet. Enter your business name to start one.';
+      'Each application is for one business. Enter its name to start.';
 
   @override
   String get authContinue => 'Continue';
@@ -113,6 +113,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorPasswordMatch => 'Passwords don\'t match';
+
+  @override
+  String get applicationsTitle => 'My applications';
+
+  @override
+  String get applicationsNew => 'New application';
+
+  @override
+  String get applicationsEmptyTitle => 'No applications yet';
+
+  @override
+  String get applicationsEmptyBody =>
+      'Start one for each business you want to bring to FastPay.';
+
+  @override
+  String get applicationsOpenHint => 'Opens this application';
 
   @override
   String get welcomeStepsHeading => 'Apply in 4 guided steps';

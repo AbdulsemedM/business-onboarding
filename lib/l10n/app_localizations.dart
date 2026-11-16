@@ -241,13 +241,13 @@ abstract class AppLocalizations {
   /// No description provided for @authBusinessNameTitle.
   ///
   /// In en, this message translates to:
-  /// **'Name your business'**
+  /// **'New application'**
   String get authBusinessNameTitle;
 
   /// No description provided for @authBusinessNameBody.
   ///
   /// In en, this message translates to:
-  /// **'Your account doesn\'t have an application yet. Enter your business name to start one.'**
+  /// **'Each application is for one business. Enter its name to start.'**
   String get authBusinessNameBody;
 
   /// No description provided for @authContinue.
@@ -291,6 +291,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Passwords don\'t match'**
   String get errorPasswordMatch;
+
+  /// No description provided for @applicationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My applications'**
+  String get applicationsTitle;
+
+  /// No description provided for @applicationsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New application'**
+  String get applicationsNew;
+
+  /// No description provided for @applicationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No applications yet'**
+  String get applicationsEmptyTitle;
+
+  /// No description provided for @applicationsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Start one for each business you want to bring to FastPay.'**
+  String get applicationsEmptyBody;
+
+  /// No description provided for @applicationsOpenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens this application'**
+  String get applicationsOpenHint;
 
   /// No description provided for @welcomeStepsHeading.
   ///

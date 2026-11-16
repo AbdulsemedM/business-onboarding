@@ -5,7 +5,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../onboarding/logic/wizard_cubit.dart';
 import '../logic/auth_cubit.dart';
 
-/// Asks, then signs out and removes the draft from the device (it holds
+/// Asks, then signs out and removes every draft from the device (they hold
 /// personal data). Server data is kept.
 Future<void> confirmSignOut(BuildContext context) async {
   final l10n = AppLocalizations.of(context);
@@ -30,6 +30,6 @@ Future<void> confirmSignOut(BuildContext context) async {
     ),
   );
   if (!(confirmed ?? false)) return;
-  await wizard.discardDraft();
+  await wizard.discardAllDrafts();
   await auth.logout();
 }

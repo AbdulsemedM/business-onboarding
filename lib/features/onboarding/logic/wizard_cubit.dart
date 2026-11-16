@@ -7,7 +7,9 @@ import '../data/models/onboarding_draft.dart';
 import '../data/models/onboarding_step.dart';
 import 'wizard_state.dart';
 
-/// Owns the current step and the draft, and saves the draft to the device.
+/// Owns the current step and the open application's draft, and saves the
+/// draft to the device. Each application has its own draft; [open] switches
+/// between them.
 ///
 /// Field changes are saved after a short pause ([autosaveDelay]).
 /// Step changes are saved right away.
@@ -22,16 +24,25 @@ class WizardCubit extends Cubit<WizardState> {
   final DraftStore _draftStore;
   final Debouncer _autosave;
 
-  Future<void> load() async {
+  /// Loads [applicationId]'s draft, saving the one that was open first.
+  Future<void> open(String applicationId) async {
+    if (state.isLoaded && state.draft.applicationId == applicationId) return;
+    if (state.isLoaded) {
+      await saveNow();
+      // Hide the old draft while the new one loads.
+      emit(const WizardState());
+    }
     OnboardingDraft? saved;
     try {
-      saved = await _draftStore.load();
+      saved = await _draftStore.load(applicationId);
     } catch (_) {
       safeLog('Draft load failed');
     }
     emit(
-      state.copyWith(
-        draft: saved ?? const OnboardingDraft(),
+      WizardState(
+        draft: (saved ?? const OnboardingDraft()).copyWith(
+          applicationId: applicationId,
+        ),
         isLoaded: true,
         hasSavedDraft: saved != null,
       ),
@@ -63,32 +74,36 @@ class WizardCubit extends Cubit<WizardState> {
     await saveNow();
   }
 
-  /// Ties the draft to the signed-in application. A draft saved for a
-  /// different application (another account) is discarded, so one account's
-  /// answers are never shown or sent under another.
-  Future<void> bindApplication(String applicationId) async {
-    if (!state.isLoaded) await stream.firstWhere((s) => s.isLoaded);
-    final draft = state.draft;
-    if (draft.applicationId == applicationId) return;
-    // A draft without an id predates sign-in (older builds) and is adopted.
-    if (draft.applicationId != null) {
-      safeLog('Draft belongs to another application; discarded');
-      await discardDraft();
-    }
-    emit(
-      state.copyWith(draft: state.draft.copyWith(applicationId: applicationId)),
-    );
-    await saveNow();
-  }
-
-  /// Deletes the local draft and starts over.
+  /// Deletes the open application's draft and starts it over.
   Future<void> discardDraft() async {
     _autosave.cancel();
-    await _draftStore.clear();
-    emit(const WizardState(isLoaded: true));
+    final id = state.draft.applicationId;
+    if (id != null) await _draftStore.clear(id);
+    emit(
+      WizardState(isLoaded: true, draft: OnboardingDraft(applicationId: id)),
+    );
+  }
+
+  /// Deletes every draft on the device (sign out).
+  Future<void> discardAllDrafts() async {
+    _autosave.cancel();
+    await _draftStore.clearAll();
+    emit(const WizardState());
+  }
+
+  /// Drops drafts for applications not on the signed-in account, so one
+  /// account never keeps another's answers on the device.
+  Future<void> retainDrafts(Set<String> applicationIds) async {
+    try {
+      await _draftStore.retainOnly(applicationIds);
+    } catch (_) {
+      safeLog('Draft cleanup failed');
+    }
   }
 
   Future<void> _save() async {
+    // Nothing is open yet (before sign-in or between applications).
+    if (!state.isLoaded) return;
     try {
       await _draftStore.save(state.draft);
     } catch (_) {

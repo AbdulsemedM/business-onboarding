@@ -7,7 +7,6 @@ import '../../../core/router/routes.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/brand_logo.dart';
-import 'sign_out.dart';
 import '../../onboarding/logic/wizard_cubit.dart';
 import '../../onboarding/logic/wizard_state.dart';
 
@@ -230,7 +229,7 @@ class _Connector extends StatelessWidget {
   }
 }
 
-/// The main button and sign out, on the navy background.
+/// The main button and the way back to the list, on the navy background.
 class _Actions extends StatelessWidget {
   const _Actions({required this.state});
 
@@ -259,8 +258,8 @@ class _Actions extends StatelessWidget {
         const SizedBox(height: 4),
         TextButton(
           style: TextButton.styleFrom(foregroundColor: AppTheme.white),
-          onPressed: () => confirmSignOut(context),
-          child: Text(l10n.authSignOut),
+          onPressed: () => context.go(Routes.applications),
+          child: Text(l10n.applicationsTitle),
         ),
       ],
     );
