@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -111,8 +113,8 @@ class _Hero extends StatelessWidget {
   }
 }
 
-/// White card with the four steps as a connected 1-2-3-4 path, so it reads
-/// as a guided wizard.
+/// The four steps as a connected 1-2-3-4 path, so it reads as a guided
+/// wizard. A faint see-through panel, so it blends into the navy backdrop.
 class _StepsCard extends StatelessWidget {
   const _StepsCard();
 
@@ -126,33 +128,39 @@ class _StepsCard extends StatelessWidget {
       (Icons.verified_user_rounded, l10n.welcomeStepCompliance),
       (Icons.send_rounded, l10n.welcomeStepSubmit),
     ];
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.white,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Semantics(
-            header: true,
-            child: Text(
-              l10n.welcomeStepsHeading,
-              style: theme.textTheme.titleMedium,
-            ),
+    // Frosted: the speed lines behind are blurred, not drawn through text.
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          color: AppTheme.white.withValues(alpha: 0.07),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  l10n.welcomeStepsHeading,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: AppTheme.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              for (final (i, (icon, label)) in steps.indexed) ...[
+                _StepRow(
+                  number: i + 1,
+                  total: steps.length,
+                  icon: icon,
+                  label: label,
+                ),
+                if (i < steps.length - 1) const _Connector(),
+              ],
+            ],
           ),
-          const SizedBox(height: 16),
-          for (final (i, (icon, label)) in steps.indexed) ...[
-            _StepRow(
-              number: i + 1,
-              total: steps.length,
-              icon: icon,
-              label: label,
-            ),
-            if (i < steps.length - 1) const _Connector(),
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -192,12 +200,19 @@ class _StepRow extends StatelessWidget {
             child: Icon(icon, size: 20, color: AppTheme.white),
           ),
           const SizedBox(width: 14),
-          Expanded(child: Text(label, style: theme.textTheme.titleSmall)),
+          Expanded(
+            child: Text(
+              label,
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: AppTheme.white,
+              ),
+            ),
+          ),
           // The step number, like a wizard's progress.
           Text(
             '$number/$total',
             style: theme.textTheme.labelLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+              color: AppTheme.white.withValues(alpha: 0.7),
             ),
           ),
         ],
