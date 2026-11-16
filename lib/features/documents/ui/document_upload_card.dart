@@ -310,7 +310,7 @@ enum _Status {
 
   Color color(ColorScheme colors) => switch (this) {
     notUploaded || preparing || uploading => colors.onSurfaceVariant,
-    uploaded => colors.primary,
+    uploaded => colors.secondary,
     failed || rejected => colors.error,
   };
 }

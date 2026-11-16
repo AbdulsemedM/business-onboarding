@@ -294,7 +294,7 @@ class _SectionCard extends StatelessWidget {
                   child: Text(
                     '${step.number}',
                     style: theme.textTheme.labelLarge?.copyWith(
-                      color: colors.primary,
+                      color: colors.secondary,
                     ),
                   ),
                 ),

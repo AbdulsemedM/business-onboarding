@@ -14,8 +14,11 @@ enum AuthStatus {
   unknown,
   signedOut,
 
-  /// Signed in, but the account has no application yet.
+  /// Signed in, but no application is open: the agent picks one from their
+  /// list (or starts one).
   needsApplication,
+
+  /// Signed in with an application open.
   signedIn,
 }
 
@@ -32,6 +35,9 @@ abstract class AuthState with _$AuthState {
 
     /// Signed out because the session expired (not by the user).
     @Default(false) bool sessionExpired,
+
+    /// The open application, when [status] is [AuthStatus.signedIn].
+    String? applicationId,
   }) = _AuthState;
 }
 
@@ -51,13 +57,7 @@ class AuthCubit extends Cubit<AuthState> {
       emit(const AuthState(status: AuthStatus.signedOut));
       return;
     }
-    emit(
-      AuthState(
-        status: await _repository.needsApplication()
-            ? AuthStatus.needsApplication
-            : AuthStatus.signedIn,
-      ),
-    );
+    emit(await _signedInState());
   }
 
   Future<void> login({required String email, required String password}) =>
@@ -71,6 +71,12 @@ class AuthCubit extends Cubit<AuthState> {
     return SignInResult.ready;
   });
 
+  /// Opens one of the account's applications.
+  Future<void> selectApplication(String applicationId) async {
+    await _repository.selectApplication(applicationId);
+    emit(AuthState(status: AuthStatus.signedIn, applicationId: applicationId));
+  }
+
   Future<void> logout() async {
     await _repository.logout();
     emit(const AuthState(status: AuthStatus.signedOut));
@@ -82,14 +88,8 @@ class AuthCubit extends Cubit<AuthState> {
     if (state.busy) return;
     emit(state.copyWith(busy: true, failure: null, sessionExpired: false));
     try {
-      final result = await call();
-      emit(
-        AuthState(
-          status: result == SignInResult.ready
-              ? AuthStatus.signedIn
-              : AuthStatus.needsApplication,
-        ),
-      );
+      await call();
+      emit(await _signedInState());
     } on AppFailure catch (failure) {
       safeLog('Auth call failed: ${failure.runtimeType}');
       emit(state.copyWith(busy: false, failure: failure));
@@ -97,6 +97,14 @@ class AuthCubit extends Cubit<AuthState> {
       safeLog('Auth call failed');
       emit(state.copyWith(busy: false, failure: const AppFailure.unknown()));
     }
+  }
+
+  /// Signed in, with the open application if there is one.
+  Future<AuthState> _signedInState() async {
+    final applicationId = await _repository.applicationId();
+    return applicationId == null
+        ? const AuthState(status: AuthStatus.needsApplication)
+        : AuthState(status: AuthStatus.signedIn, applicationId: applicationId);
   }
 
   void _onExpired() {

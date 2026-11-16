@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 
-/// FastPay brand theme: blue primary, navy secondary, white surfaces.
+/// FastPay brand theme, using the two logo colors exactly: sky blue and navy.
+///
+/// Sky-blue buttons carry white, bold text (by design choice; the contrast
+/// is about 2.7:1). Text on white backgrounds uses navy.
 class AppTheme {
   const AppTheme._();
 
-  static const primary = Color(0xFF0155EB);
-  static const secondary = Color(0xFF24397C);
+  static const primary = Color(0xFF01A8F9);
+  static const secondary = Color(0xFF131D70);
   static const white = Color(0xFFFFFFFF);
 
   // Tints and neutrals derived from the brand colors.
-  static const _primaryTint = Color(0xFFE4EDFD);
-  static const _secondaryTint = Color(0xFFE8ECF6);
-  static const _ink = Color(0xFF14213D);
-  static const _inkMuted = Color(0xFF5B6886);
-  static const _outline = Color(0xFFC9D2E3);
-  static const _outlineSoft = Color(0xFFE4E9F2);
-  static const _fieldFill = Color(0xFFF6F8FC);
+  static const _primaryTint = Color(0xFFE5F6FE);
+  static const _secondaryTint = Color(0xFFE7E8F1);
+  static const _ink = Color(0xFF161C3F);
+  static const _inkMuted = Color(0xFF585E7E);
+  static const _outline = Color(0xFFC8CCE0);
+  static const _outlineSoft = Color(0xFFE6E8F2);
+  static const _fieldFill = Color(0xFFF5F7FB);
   static const _error = Color(0xFFD23B3B);
 
   static const radius = 12.0;
@@ -69,12 +72,23 @@ class AppTheme {
     final buttonShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(radius),
     );
-    const buttonText = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
-    OutlineInputBorder inputBorder(Color color, [double width = 1]) =>
-        OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius),
-          borderSide: BorderSide(color: color, width: width),
-        );
+    const buttonText = TextStyle(fontSize: 16, fontWeight: FontWeight.w700);
+    // Text fields have no border in any state: the fill shows focus (sky
+    // tint) and errors (red tint), and the error text sits underneath.
+    final noBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(radius),
+      borderSide: BorderSide.none,
+    );
+    final fieldFill = WidgetStateColor.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return colors.surfaceContainerLow;
+      }
+      if (states.contains(WidgetState.error)) return colors.errorContainer;
+      if (states.contains(WidgetState.focused)) {
+        return colors.primaryContainer;
+      }
+      return isLight ? colors.surfaceContainerHigh : colors.surfaceContainer;
+    });
 
     final base = ThemeData(
       colorScheme: colors,
@@ -130,16 +144,16 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: isLight ? _fieldFill : colors.surfaceContainerHigh,
-        border: inputBorder(colors.outline),
-        enabledBorder: inputBorder(colors.outline),
-        focusedBorder: inputBorder(colors.primary, 2),
-        errorBorder: inputBorder(colors.error),
-        focusedErrorBorder: inputBorder(colors.error, 2),
-        disabledBorder: inputBorder(colors.outlineVariant),
+        fillColor: fieldFill,
+        border: noBorder,
+        enabledBorder: noBorder,
+        focusedBorder: noBorder,
+        errorBorder: noBorder,
+        focusedErrorBorder: noBorder,
+        disabledBorder: noBorder,
         labelStyle: TextStyle(color: colors.onSurfaceVariant),
         floatingLabelStyle: TextStyle(
-          color: colors.primary,
+          color: colors.secondary,
           fontWeight: FontWeight.w600,
         ),
         hintStyle: TextStyle(
@@ -165,13 +179,13 @@ class AppTheme {
           minimumSize: minButtonSize,
           shape: buttonShape,
           textStyle: buttonText,
-          foregroundColor: colors.primary,
+          foregroundColor: colors.secondary,
           side: BorderSide(color: colors.primary, width: 1.5),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: colors.primary,
+          foregroundColor: colors.secondary,
           textStyle: buttonText,
           shape: buttonShape,
           minimumSize: const Size(48, 48),
@@ -183,7 +197,7 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: colors.surface,
         selectedColor: colors.primaryContainer,
-        checkmarkColor: colors.primary,
+        checkmarkColor: colors.secondary,
         side: BorderSide(color: colors.outline),
         shape: const StadiumBorder(),
         labelStyle: TextStyle(
@@ -203,7 +217,7 @@ class AppTheme {
         ),
       ),
       listTileTheme: ListTileThemeData(
-        iconColor: colors.primary,
+        iconColor: colors.secondary,
         titleTextStyle: text.bodyLarge?.copyWith(
           color: colors.onSurface,
           fontWeight: FontWeight.w500,
@@ -214,9 +228,8 @@ class AppTheme {
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? colors.onPrimary
-              : colors.outline,
+          (states) =>
+              states.contains(WidgetState.selected) ? white : colors.outline,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
@@ -232,7 +245,7 @@ class AppTheme {
       radioTheme: RadioThemeData(
         fillColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? colors.primary
+              ? colors.secondary
               : colors.outline,
         ),
       ),

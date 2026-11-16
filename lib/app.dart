@@ -51,14 +51,14 @@ class _AppState extends State<App> {
   late final AuthRepository _authRepository =
       widget.authRepository ?? MockAuthRepository();
   late final AuthCubit _authCubit = AuthCubit(repository: _authRepository);
-  StreamSubscription<AuthStatus>? _authChanges;
+  StreamSubscription<String>? _authChanges;
   late final GoRouter _router = createAppRouter(
     auth: _authCubit,
     initialLocation: widget.initialLocation,
   );
   late final WizardCubit _wizardCubit = WizardCubit(
     draftStore: widget.draftStore,
-  )..load();
+  );
 
   // Save straight away when the app is backgrounded, in case it gets killed.
   late final AppLifecycleListener _lifecycle = AppLifecycleListener(
@@ -70,20 +70,16 @@ class _AppState extends State<App> {
   void initState() {
     super.initState();
     _lifecycle; // Start listening.
-    // Keep the local draft tied to the signed-in application.
+    // Show the open application's draft whenever the agent opens one.
     _authChanges = _authCubit.stream
-        .map((s) => s.status)
+        .map((s) => s.applicationId)
+        // Before dropping nulls, so reopening the same application after
+        // signing out loads it again.
         .distinct()
-        .where((status) => status == AuthStatus.signedIn)
-        .listen((_) => _bindDraft());
+        .where((id) => id != null)
+        .cast<String>()
+        .listen(_wizardCubit.open);
     _authCubit.check();
-  }
-
-  Future<void> _bindDraft() async {
-    final applicationId = await _authRepository.applicationId();
-    if (applicationId != null) {
-      await _wizardCubit.bindApplication(applicationId);
-    }
   }
 
   @override
@@ -100,6 +96,7 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
+        RepositoryProvider<AuthRepository>.value(value: _authRepository),
         RepositoryProvider<DocumentRepository>(
           create: (_) => widget.documentRepository ?? MockDocumentRepository(),
         ),

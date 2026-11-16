@@ -105,7 +105,7 @@ class _OptionTile<T> extends StatelessWidget {
         option.title,
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: selected ? colors.primary : colors.onSurface,
+          color: selected ? colors.secondary : colors.onSurface,
         ),
       ),
       subtitle: option.subtitle == null ? null : Text(option.subtitle!),

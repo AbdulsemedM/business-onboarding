@@ -16,8 +16,8 @@ class AppConfig {
     apiBaseUrl: _override.isNotEmpty
         ? _override
         : (Env.apiBaseUrl?.isNotEmpty ?? false)
-            ? Env.apiBaseUrl!
-            : _unset,
+        ? Env.apiBaseUrl!
+        : _unset,
   );
 
   final String apiBaseUrl;

@@ -31,11 +31,11 @@ enum ApplicationStatus {
     };
   }
 
-  /// Waiting for the reviewer: nothing for the merchant to do.
+  /// Waiting for the reviewer: nothing for the agent to do.
   bool get isInReview => this == submitted || this == resubmitted;
 }
 
-/// One thing the reviewer asked the merchant to fix (backend
+/// One thing the reviewer asked the agent to fix (backend
 /// `openCorrections[]`).
 @freezed
 abstract class CorrectionItem with _$CorrectionItem {
