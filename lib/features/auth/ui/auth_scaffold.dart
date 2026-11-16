@@ -2,63 +2,135 @@ import 'package:flutter/material.dart';
 
 import '../../../core/errors/app_failure.dart';
 import '../../../core/errors/failure_messages.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/brand_logo.dart';
 
-/// Shared layout for the sign-in screens: brand mark, title, intro, form.
+/// Shared layout for the sign-in screens: brand logo, title, intro, form.
+///
+/// The form sits on a white card over a soft tinted background, and is
+/// capped at a comfortable reading width on tablets. When [onBack] is set,
+/// a back arrow appears and the phone's Back button does the same thing,
+/// so these screens are never a dead end.
 class AuthScaffold extends StatelessWidget {
   const AuthScaffold({
     super.key,
     required this.title,
     required this.body,
     required this.children,
+    this.onBack,
+    this.footer,
   });
 
   final String title;
   final String body;
   final List<Widget> children;
 
+  /// Where Back goes. No arrow and no Back handling when null.
+  final VoidCallback? onBack;
+
+  /// Pinned under the card, e.g. "Already have an account? Sign in".
+  final Widget? footer;
+
+  static const maxContentWidth = 480.0;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppTheme.primary, AppTheme.secondary],
+      backgroundColor: colors.surfaceContainerLowest,
+      body: PopScope(
+        canPop: onBack == null,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) onBack?.call();
+        },
+        child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: maxContentWidth),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                children: [
+                  Row(
+                    children: [
+                      if (onBack case final onBack?)
+                        Padding(
+                          padding: const EdgeInsetsDirectional.only(end: 4),
+                          child: IconButton(
+                            onPressed: onBack,
+                            tooltip: l10n.back,
+                            icon: const Icon(Icons.arrow_back),
+                          ),
+                        ),
+                      const Expanded(child: BrandLogo(height: 40)),
+                    ],
+                  ),
+                  const SizedBox(height: 28),
+                  Card(
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Semantics(
+                            header: true,
+                            child: Text(
+                              title,
+                              style: theme.textTheme.headlineSmall,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            body,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          ...children,
+                        ],
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
-                    Icons.bolt_rounded,
-                    color: AppTheme.white,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(l10n.appTitle, style: theme.textTheme.titleMedium),
-              ],
+                  if (footer case final footer?) ...[
+                    const SizedBox(height: 12),
+                    footer,
+                  ],
+                ],
+              ),
             ),
-            const SizedBox(height: 32),
-            Semantics(
-              header: true,
-              child: Text(title, style: theme.textTheme.headlineMedium),
-            ),
-            const SizedBox(height: 8),
-            Text(body, style: theme.textTheme.bodyMedium),
-            const SizedBox(height: 24),
-            ...children,
-          ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+/// "New to FastPay? Create an account" under the card.
+class AuthSwitchLink extends StatelessWidget {
+  const AuthSwitchLink({
+    super.key,
+    required this.question,
+    required this.action,
+    required this.onPressed,
+  });
+
+  final String question;
+  final String action;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text(question, style: Theme.of(context).textTheme.bodyMedium),
+        TextButton(onPressed: onPressed, child: Text(action)),
+      ],
     );
   }
 }

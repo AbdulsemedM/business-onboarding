@@ -9,6 +9,7 @@ import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 import '../../../../core/utils/phone_validation.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/country_picker_sheet.dart';
+import '../../../../shared/widgets/field_row.dart';
 import '../../../../shared/widgets/name_form_field.dart';
 import '../../../../shared/widgets/phone_form_field.dart';
 import '../../../../shared/widgets/radio_group_form_field.dart';
@@ -116,18 +117,23 @@ class _Step1BusinessScreenState extends State<Step1BusinessScreen> {
             SectionHeader(l10n.step1OwnerSection),
             Text(l10n.step1OwnerHelp),
             const SizedBox(height: 8),
-            NameFormField(
-              name: Step1Fields.ownerFirstName,
-              label: l10n.step1OwnerFirstName,
-              initialValue: _initial.ownerFirstName,
-              onChanged: (v) => _update((d) => d.copyWith(ownerFirstName: v)),
-            ),
-            const SizedBox(height: 16),
-            NameFormField(
-              name: Step1Fields.ownerLastName,
-              label: l10n.step1OwnerLastName,
-              initialValue: _initial.ownerLastName,
-              onChanged: (v) => _update((d) => d.copyWith(ownerLastName: v)),
+            FieldRow(
+              children: [
+                NameFormField(
+                  name: Step1Fields.ownerFirstName,
+                  label: l10n.step1OwnerFirstName,
+                  initialValue: _initial.ownerFirstName,
+                  onChanged: (v) =>
+                      _update((d) => d.copyWith(ownerFirstName: v)),
+                ),
+                NameFormField(
+                  name: Step1Fields.ownerLastName,
+                  label: l10n.step1OwnerLastName,
+                  initialValue: _initial.ownerLastName,
+                  onChanged: (v) =>
+                      _update((d) => d.copyWith(ownerLastName: v)),
+                ),
+              ],
             ),
 
             SectionHeader(l10n.step1HoursSection),
@@ -251,39 +257,30 @@ class _Step1BusinessScreenState extends State<Step1BusinessScreen> {
       );
     }
 
-    // Wraps to two lines when text is large so labels stay readable.
-    return Wrap(
-      spacing: 16,
-      runSpacing: 16,
+    return FieldRow(
       children: [
-        ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 140, maxWidth: 220),
-          child: picker(
-            name: Step1Fields.opensAt,
-            label: l10n.step1OpensAt,
-            initialMinutes: _initial.opensAt,
-            onChanged: (v) => _update((d) => d.copyWith(opensAt: v)),
-          ),
+        picker(
+          name: Step1Fields.opensAt,
+          label: l10n.step1OpensAt,
+          initialMinutes: _initial.opensAt,
+          onChanged: (v) => _update((d) => d.copyWith(opensAt: v)),
         ),
-        ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 140, maxWidth: 220),
-          child: picker(
-            name: Step1Fields.closesAt,
-            label: l10n.step1ClosesAt,
-            initialMinutes: _initial.closesAt,
-            onChanged: (v) => _update((d) => d.copyWith(closesAt: v)),
-            // Overnight hours (e.g. 6 PM to 2 AM) are allowed; only an
-            // identical open and close time is rejected.
-            extraValidator: (closes) {
-              final opens =
-                  _formKey.currentState?.fields[Step1Fields.opensAt]?.value
-                      as DateTime?;
-              if (closes == null || opens == null) return null;
-              return _minutesFromTime(closes) == _minutesFromTime(opens)
-                  ? l10n.errorSameTimes
-                  : null;
-            },
-          ),
+        picker(
+          name: Step1Fields.closesAt,
+          label: l10n.step1ClosesAt,
+          initialMinutes: _initial.closesAt,
+          onChanged: (v) => _update((d) => d.copyWith(closesAt: v)),
+          // Overnight hours (e.g. 6 PM to 2 AM) are allowed; only an
+          // identical open and close time is rejected.
+          extraValidator: (closes) {
+            final opens =
+                _formKey.currentState?.fields[Step1Fields.opensAt]?.value
+                    as DateTime?;
+            if (closes == null || opens == null) return null;
+            return _minutesFromTime(closes) == _minutesFromTime(opens)
+                ? l10n.errorSameTimes
+                : null;
+          },
         ),
       ],
     );
@@ -338,39 +335,48 @@ class _Step1BusinessScreenState extends State<Step1BusinessScreen> {
         onChanged: (v) => _update((d) => d.copyWith(addressLine2: v)),
       ),
       const SizedBox(height: 16),
-      text(
-        name: Step1Fields.city,
-        label: l10n.step1City,
-        initialValue: _initial.city,
-        required: true,
-        autofillHints: const [AutofillHints.addressCity],
-        onChanged: (v) => _update((d) => d.copyWith(city: v)),
+      FieldRow(
+        flex: const [3, 2],
+        children: [
+          text(
+            name: Step1Fields.city,
+            label: l10n.step1City,
+            initialValue: _initial.city,
+            required: true,
+            autofillHints: const [AutofillHints.addressCity],
+            onChanged: (v) => _update((d) => d.copyWith(city: v)),
+          ),
+          text(
+            name: Step1Fields.region,
+            label: l10n.step1Region,
+            initialValue: _initial.region,
+            autofillHints: const [AutofillHints.addressState],
+            onChanged: (v) => _update((d) => d.copyWith(region: v)),
+          ),
+        ],
       ),
       const SizedBox(height: 16),
-      text(
-        name: Step1Fields.region,
-        label: l10n.step1Region,
-        initialValue: _initial.region,
-        autofillHints: const [AutofillHints.addressState],
-        onChanged: (v) => _update((d) => d.copyWith(region: v)),
-      ),
-      const SizedBox(height: 16),
-      text(
-        name: Step1Fields.postalCode,
-        label: l10n.step1PostalCode,
-        initialValue: _initial.postalCode,
-        maxLength: 20,
-        capitalization: TextCapitalization.characters,
-        autofillHints: const [AutofillHints.postalCode],
-        onChanged: (v) => _update((d) => d.copyWith(postalCode: v)),
-      ),
-      const SizedBox(height: 16),
-      BlocSelector<WizardCubit, WizardState, String>(
-        selector: (state) => state.draft.business.countryCode,
-        builder: (context, code) => _CountryField(
-          countryCode: code,
-          onChanged: (iso) => _update((d) => d.copyWith(countryCode: iso.name)),
-        ),
+      FieldRow(
+        flex: const [2, 3],
+        children: [
+          text(
+            name: Step1Fields.postalCode,
+            label: l10n.step1PostalCode,
+            initialValue: _initial.postalCode,
+            maxLength: 20,
+            capitalization: TextCapitalization.characters,
+            autofillHints: const [AutofillHints.postalCode],
+            onChanged: (v) => _update((d) => d.copyWith(postalCode: v)),
+          ),
+          BlocSelector<WizardCubit, WizardState, String>(
+            selector: (state) => state.draft.business.countryCode,
+            builder: (context, code) => _CountryField(
+              countryCode: code,
+              onChanged: (iso) =>
+                  _update((d) => d.copyWith(countryCode: iso.name)),
+            ),
+          ),
+        ],
       ),
       BlocSelector<WizardCubit, WizardState, bool>(
         selector: (state) => state.draft.business.subtenant,
@@ -424,29 +430,24 @@ class _Step1BusinessScreenState extends State<Step1BusinessScreen> {
       );
     }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return FieldRow(
+      minFieldWidth: 110,
       children: [
-        Expanded(
-          child: numberField(
-            name: yearsName,
-            label: l10n.step1Years,
-            initialValue: initialYears,
-            max: 99,
-            rangeError: l10n.errorYearsRange,
-            onChanged: onYears,
-          ),
+        numberField(
+          name: yearsName,
+          label: l10n.step1Years,
+          initialValue: initialYears,
+          max: 99,
+          rangeError: l10n.errorYearsRange,
+          onChanged: onYears,
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: numberField(
-            name: monthsName,
-            label: l10n.step1Months,
-            initialValue: initialMonths,
-            max: 11,
-            rangeError: l10n.errorMonthsRange,
-            onChanged: onMonths,
-          ),
+        numberField(
+          name: monthsName,
+          label: l10n.step1Months,
+          initialValue: initialMonths,
+          max: 11,
+          rangeError: l10n.errorMonthsRange,
+          onChanged: onMonths,
         ),
       ],
     );

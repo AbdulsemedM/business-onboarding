@@ -3,6 +3,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/widgets/group_card.dart';
+import '../../../../../shared/widgets/field_row.dart';
 import '../../../../../shared/widgets/name_form_field.dart';
 import '../../../../../shared/widgets/radio_group_form_field.dart';
 import '../../../../documents/data/document_repository.dart';
@@ -102,22 +103,25 @@ class PartnerDocumentsSection extends StatelessWidget {
           const SizedBox(height: 12),
           if (ownerName case final name?)
             Text(l10n.step2OwnerName(name))
-          else ...[
-            NameFormField(
-              name: Step2Fields.partnerFirstName(id),
-              label: l10n.step2PartnerFirstName,
-              initialValue: partner.firstName,
-              onChanged: (name) =>
-                  onChanged((p) => p.copyWith(firstName: name)),
+          else
+            FieldRow(
+              children: [
+                NameFormField(
+                  name: Step2Fields.partnerFirstName(id),
+                  label: l10n.step2PartnerFirstName,
+                  initialValue: partner.firstName,
+                  onChanged: (name) =>
+                      onChanged((p) => p.copyWith(firstName: name)),
+                ),
+                NameFormField(
+                  name: Step2Fields.partnerLastName(id),
+                  label: l10n.step2PartnerLastName,
+                  initialValue: partner.lastName,
+                  onChanged: (name) =>
+                      onChanged((p) => p.copyWith(lastName: name)),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            NameFormField(
-              name: Step2Fields.partnerLastName(id),
-              label: l10n.step2PartnerLastName,
-              initialValue: partner.lastName,
-              onChanged: (name) => onChanged((p) => p.copyWith(lastName: name)),
-            ),
-          ],
           const SizedBox(height: 16),
           Text(l10n.step2IdTypeLabel, style: theme.textTheme.labelLarge),
           RadioGroupFormField<PersonalIdType>(

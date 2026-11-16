@@ -7,6 +7,7 @@ import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/utils/phone_validation.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/field_row.dart';
 import '../../../shared/widgets/name_form_field.dart';
 import '../../../shared/widgets/phone_form_field.dart';
 import '../data/auth_repository.dart';
@@ -62,9 +63,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final failure = state.failure;
     const gap = SizedBox(height: 16);
 
+    void goSignIn() {
+      context.read<AuthCubit>().clearFailure();
+      context.go(Routes.login);
+    }
+
     return AuthScaffold(
       title: l10n.authRegisterTitle,
       body: l10n.authRegisterBody,
+      // Back from "create account" returns to sign in, never out of the app.
+      onBack: state.busy ? null : goSignIn,
+      footer: AuthSwitchLink(
+        question: l10n.authHaveAccount,
+        action: l10n.authSignIn,
+        onPressed: state.busy ? null : goSignIn,
+      ),
       children: [
         FormBuilder(
           key: _formKey,
@@ -72,18 +85,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                NameFormField(
-                  name: 'firstName',
-                  label: l10n.authFirstName,
-                  initialValue: null,
-                  onChanged: (v) => _first = v,
-                ),
-                gap,
-                NameFormField(
-                  name: 'lastName',
-                  label: l10n.authLastName,
-                  initialValue: null,
-                  onChanged: (v) => _last = v,
+                FieldRow(
+                  children: [
+                    NameFormField(
+                      name: 'firstName',
+                      label: l10n.authFirstName,
+                      initialValue: null,
+                      onChanged: (v) => _first = v,
+                    ),
+                    NameFormField(
+                      name: 'lastName',
+                      label: l10n.authLastName,
+                      initialValue: null,
+                      onChanged: (v) => _last = v,
+                    ),
+                  ],
                 ),
                 gap,
                 NameFormField(
@@ -155,23 +171,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           label: l10n.authRegister,
           busy: state.busy,
           onPressed: _submit,
-        ),
-        const SizedBox(height: 16),
-        Wrap(
-          alignment: WrapAlignment.center,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Text(l10n.authHaveAccount),
-            TextButton(
-              onPressed: state.busy
-                  ? null
-                  : () {
-                      context.read<AuthCubit>().clearFailure();
-                      context.go(Routes.login);
-                    },
-              child: Text(l10n.authSignIn),
-            ),
-          ],
         ),
       ],
     );

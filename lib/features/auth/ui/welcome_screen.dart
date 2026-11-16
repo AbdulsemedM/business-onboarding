@@ -5,11 +5,11 @@ import 'package:go_router/go_router.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/brand_logo.dart';
 import 'sign_out.dart';
 import '../../onboarding/logic/wizard_cubit.dart';
 import '../../onboarding/logic/wizard_state.dart';
 
-// TODO(backend): add login once the auth method is known.
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
@@ -161,24 +161,15 @@ class _Hero extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppTheme.white,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(
-                      Icons.bolt_rounded,
-                      color: AppTheme.primary,
-                      size: 26,
-                    ),
-                  ),
+                  const BrandMark(size: 52),
                   const SizedBox(width: 12),
-                  Text(
-                    l10n.appTitle,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: AppTheme.white,
-                      fontWeight: FontWeight.w700,
+                  Expanded(
+                    child: Text(
+                      l10n.appTitle,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: AppTheme.white,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ],

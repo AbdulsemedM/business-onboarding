@@ -245,6 +245,18 @@ void main() {
       expect(find.text('Continue application'), findsOneWidget);
     });
 
+    testWidgets('back on Create account returns to Sign in', (tester) async {
+      await open(tester, location: Routes.register);
+
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Sign in to continue your merchant application.'),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('register checks the password rules', (tester) async {
       await open(tester, location: Routes.register);
 

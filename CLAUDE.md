@@ -40,6 +40,8 @@ Do not invent endpoints: read `docs/api/` (or ask me) before writing any API cod
 - Step 2: partners are a list with local ids (first partner can't be removed). Bill dates are entered by the user and checked by `BillWindow` (60 days / 3 calendar months). Hidden conditional data (home bill, sublease agreement) stays in the draft; leave it out of the submission.
 - Step 2 extras agreed: each partner has a full legal name; the DBA toggle asks for the trade name; the optional 4th photo is untagged ("Additional photo"); changing the license type keeps the uploaded file. (Being re-aligned with the backend: names are first/last, 4th photo is `PHOTO_INTERIOR_ADDITIONAL`, DBA has its own `DBA_DOCUMENTATION` upload.)
 - The sublease agreement card in Step 2 follows Step 1's `subtenant` toggle.
+- Brand assets live in `assets/brand/` (logo and icon), generated from the design pack; the Android adaptive icon and iOS app icon come from the same artwork.
+- Short fields sit side by side via `FieldRow` (first/last name, city/state, open/close, years/months); it stacks them on narrow screens or at large text sizes.
 - Brand: primary `#0155EB`, secondary `#24397C`, white surfaces (`lib/core/theme/app_theme.dart`). The app is locked to the light theme (`themeMode: ThemeMode.light`); dark mode is defined but off.
 - Submit/status go through `ApplicationRepository` (mock until wired). After a submit the draft's `submitted` flag sends Welcome to the status screen. Field corrections are fixed in the wizard and resubmitted from Review; document corrections are re-uploaded on the status screen.
 - Secrets are git-ignored (`.env*`, signing keys, Firebase configs, Postman environments). Never commit them.

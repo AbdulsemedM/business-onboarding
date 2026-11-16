@@ -4,6 +4,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/group_card.dart';
+import '../../../../shared/widgets/field_row.dart';
 import '../../../../shared/widgets/name_form_field.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../logic/step_validation.dart';
@@ -136,29 +137,32 @@ class _Step3ComplianceScreenState extends State<Step3ComplianceScreen> {
               ),
               // Room for the field's floating label.
               const SizedBox(height: 12),
-              NameFormField(
-                name: Step3Fields.processorFirstName(processor.id),
-                label: l10n.firstName,
-                initialValue: processor.firstName,
-                autofocus: processor.id == _addedProcessorId,
-                onChanged: (name) => _update(
-                  (d) => d.withProcessorUpdated(
-                    processor.id,
-                    (p) => p.copyWith(firstName: name),
+              FieldRow(
+                children: [
+                  NameFormField(
+                    name: Step3Fields.processorFirstName(processor.id),
+                    label: l10n.firstName,
+                    initialValue: processor.firstName,
+                    autofocus: processor.id == _addedProcessorId,
+                    onChanged: (name) => _update(
+                      (d) => d.withProcessorUpdated(
+                        processor.id,
+                        (p) => p.copyWith(firstName: name),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              NameFormField(
-                name: Step3Fields.processorLastName(processor.id),
-                label: l10n.lastName,
-                initialValue: processor.lastName,
-                onChanged: (name) => _update(
-                  (d) => d.withProcessorUpdated(
-                    processor.id,
-                    (p) => p.copyWith(lastName: name),
+                  NameFormField(
+                    name: Step3Fields.processorLastName(processor.id),
+                    label: l10n.lastName,
+                    initialValue: processor.lastName,
+                    onChanged: (name) => _update(
+                      (d) => d.withProcessorUpdated(
+                        processor.id,
+                        (p) => p.copyWith(lastName: name),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
@@ -195,20 +199,23 @@ class _Step3ComplianceScreenState extends State<Step3ComplianceScreen> {
           _update((d) => d.copyWith(complianceOfficerIsOwner: value)),
     ),
     if (!data.complianceOfficerIsOwner) ...[
-      NameFormField(
-        name: Step3Fields.officerFirstName,
-        label: l10n.step3OfficerFirstName,
-        initialValue: data.complianceOfficerFirstName,
-        onChanged: (name) =>
-            _update((d) => d.copyWith(complianceOfficerFirstName: name)),
-      ),
-      const SizedBox(height: 16),
-      NameFormField(
-        name: Step3Fields.officerLastName,
-        label: l10n.step3OfficerLastName,
-        initialValue: data.complianceOfficerLastName,
-        onChanged: (name) =>
-            _update((d) => d.copyWith(complianceOfficerLastName: name)),
+      FieldRow(
+        children: [
+          NameFormField(
+            name: Step3Fields.officerFirstName,
+            label: l10n.step3OfficerFirstName,
+            initialValue: data.complianceOfficerFirstName,
+            onChanged: (name) =>
+                _update((d) => d.copyWith(complianceOfficerFirstName: name)),
+          ),
+          NameFormField(
+            name: Step3Fields.officerLastName,
+            label: l10n.step3OfficerLastName,
+            initialValue: data.complianceOfficerLastName,
+            onChanged: (name) =>
+                _update((d) => d.copyWith(complianceOfficerLastName: name)),
+          ),
+        ],
       ),
     ],
   ];

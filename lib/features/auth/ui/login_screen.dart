@@ -42,9 +42,19 @@ class _LoginScreenState extends State<LoginScreen> {
     final state = context.watch<AuthCubit>().state;
     final failure = state.failure;
 
+    void goRegister() {
+      context.read<AuthCubit>().clearFailure();
+      context.go(Routes.register);
+    }
+
     return AuthScaffold(
       title: l10n.authSignInTitle,
       body: l10n.authSignInBody,
+      footer: AuthSwitchLink(
+        question: l10n.authNoAccount,
+        action: l10n.authCreateAccount,
+        onPressed: state.busy ? null : goRegister,
+      ),
       children: [
         if (state.sessionExpired) ...[
           AuthError(
@@ -95,23 +105,6 @@ class _LoginScreenState extends State<LoginScreen> {
           label: l10n.authSignIn,
           busy: state.busy,
           onPressed: _submit,
-        ),
-        const SizedBox(height: 16),
-        Wrap(
-          alignment: WrapAlignment.center,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Text(l10n.authNoAccount),
-            TextButton(
-              onPressed: state.busy
-                  ? null
-                  : () {
-                      context.read<AuthCubit>().clearFailure();
-                      context.go(Routes.register);
-                    },
-              child: Text(l10n.authCreateAccount),
-            ),
-          ],
         ),
       ],
     );
