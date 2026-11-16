@@ -18,7 +18,7 @@ Admin review endpoints are in a separate internal collection. The app does not u
 | Test | `https://gateway.fastpayet.com/bo` |
 | Prod | TBD |
 
-All paths below are relative to the base URL. Pass the base URL with `--dart-define=API_BASE_URL=...`.
+All paths below are relative to the base URL. Set `API_BASE_URL` in `.env` and run `dart run build_runner build`; a plain `flutter run` then uses it.
 
 ## Envelope and errors
 

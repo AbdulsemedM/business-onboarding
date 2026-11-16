@@ -34,7 +34,7 @@ Future<void> bootstrap() async {
   const secureStorage = FlutterSecureStorage();
   final draftStore = await HiveDraftStore.open(secureStorage);
 
-  const config = AppConfig.current;
+  final config = AppConfig.current;
   if (!config.usesRealApi) {
     // No API_BASE_URL: mock repositories, always signed in.
     runApp(App(draftStore: draftStore));
