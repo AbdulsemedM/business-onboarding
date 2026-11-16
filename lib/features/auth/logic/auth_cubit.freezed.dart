@@ -17,7 +17,8 @@ mixin _$AuthState {
  AuthStatus get status;/// A sign-in, register or create-application call is running.
  bool get busy;/// Why the last call failed.
  AppFailure? get failure;/// Signed out because the session expired (not by the user).
- bool get sessionExpired;
+ bool get sessionExpired;/// The open application, when [status] is [AuthStatus.signedIn].
+ String? get applicationId;
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $AuthStateCopyWith<AuthState> get copyWith => _$AuthStateCopyWithImpl<AuthState>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthState&&(identical(other.status, status) || other.status == status)&&(identical(other.busy, busy) || other.busy == busy)&&(identical(other.failure, failure) || other.failure == failure)&&(identical(other.sessionExpired, sessionExpired) || other.sessionExpired == sessionExpired));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthState&&(identical(other.status, status) || other.status == status)&&(identical(other.busy, busy) || other.busy == busy)&&(identical(other.failure, failure) || other.failure == failure)&&(identical(other.sessionExpired, sessionExpired) || other.sessionExpired == sessionExpired)&&(identical(other.applicationId, applicationId) || other.applicationId == applicationId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,busy,failure,sessionExpired);
+int get hashCode => Object.hash(runtimeType,status,busy,failure,sessionExpired,applicationId);
 
 @override
 String toString() {
-  return 'AuthState(status: $status, busy: $busy, failure: $failure, sessionExpired: $sessionExpired)';
+  return 'AuthState(status: $status, busy: $busy, failure: $failure, sessionExpired: $sessionExpired, applicationId: $applicationId)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $AuthStateCopyWith<$Res>  {
   factory $AuthStateCopyWith(AuthState value, $Res Function(AuthState) _then) = _$AuthStateCopyWithImpl;
 @useResult
 $Res call({
- AuthStatus status, bool busy, AppFailure? failure, bool sessionExpired
+ AuthStatus status, bool busy, AppFailure? failure, bool sessionExpired, String? applicationId
 });
 
 
@@ -65,13 +66,14 @@ class _$AuthStateCopyWithImpl<$Res>
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? busy = null,Object? failure = freezed,Object? sessionExpired = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? busy = null,Object? failure = freezed,Object? sessionExpired = null,Object? applicationId = freezed,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as AuthStatus,busy: null == busy ? _self.busy : busy // ignore: cast_nullable_to_non_nullable
 as bool,failure: freezed == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
 as AppFailure?,sessionExpired: null == sessionExpired ? _self.sessionExpired : sessionExpired // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,applicationId: freezed == applicationId ? _self.applicationId : applicationId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of AuthState
@@ -168,10 +170,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AuthStatus status,  bool busy,  AppFailure? failure,  bool sessionExpired)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AuthStatus status,  bool busy,  AppFailure? failure,  bool sessionExpired,  String? applicationId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AuthState() when $default != null:
-return $default(_that.status,_that.busy,_that.failure,_that.sessionExpired);case _:
+return $default(_that.status,_that.busy,_that.failure,_that.sessionExpired,_that.applicationId);case _:
   return orElse();
 
 }
@@ -189,10 +191,10 @@ return $default(_that.status,_that.busy,_that.failure,_that.sessionExpired);case
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AuthStatus status,  bool busy,  AppFailure? failure,  bool sessionExpired)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AuthStatus status,  bool busy,  AppFailure? failure,  bool sessionExpired,  String? applicationId)  $default,) {final _that = this;
 switch (_that) {
 case _AuthState():
-return $default(_that.status,_that.busy,_that.failure,_that.sessionExpired);case _:
+return $default(_that.status,_that.busy,_that.failure,_that.sessionExpired,_that.applicationId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +211,10 @@ return $default(_that.status,_that.busy,_that.failure,_that.sessionExpired);case
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AuthStatus status,  bool busy,  AppFailure? failure,  bool sessionExpired)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AuthStatus status,  bool busy,  AppFailure? failure,  bool sessionExpired,  String? applicationId)?  $default,) {final _that = this;
 switch (_that) {
 case _AuthState() when $default != null:
-return $default(_that.status,_that.busy,_that.failure,_that.sessionExpired);case _:
+return $default(_that.status,_that.busy,_that.failure,_that.sessionExpired,_that.applicationId);case _:
   return null;
 
 }
@@ -224,7 +226,7 @@ return $default(_that.status,_that.busy,_that.failure,_that.sessionExpired);case
 
 
 class _AuthState implements AuthState {
-  const _AuthState({this.status = AuthStatus.unknown, this.busy = false, this.failure, this.sessionExpired = false});
+  const _AuthState({this.status = AuthStatus.unknown, this.busy = false, this.failure, this.sessionExpired = false, this.applicationId});
   
 
 @override@JsonKey() final  AuthStatus status;
@@ -234,6 +236,8 @@ class _AuthState implements AuthState {
 @override final  AppFailure? failure;
 /// Signed out because the session expired (not by the user).
 @override@JsonKey() final  bool sessionExpired;
+/// The open application, when [status] is [AuthStatus.signedIn].
+@override final  String? applicationId;
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
@@ -245,16 +249,16 @@ _$AuthStateCopyWith<_AuthState> get copyWith => __$AuthStateCopyWithImpl<_AuthSt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthState&&(identical(other.status, status) || other.status == status)&&(identical(other.busy, busy) || other.busy == busy)&&(identical(other.failure, failure) || other.failure == failure)&&(identical(other.sessionExpired, sessionExpired) || other.sessionExpired == sessionExpired));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthState&&(identical(other.status, status) || other.status == status)&&(identical(other.busy, busy) || other.busy == busy)&&(identical(other.failure, failure) || other.failure == failure)&&(identical(other.sessionExpired, sessionExpired) || other.sessionExpired == sessionExpired)&&(identical(other.applicationId, applicationId) || other.applicationId == applicationId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,busy,failure,sessionExpired);
+int get hashCode => Object.hash(runtimeType,status,busy,failure,sessionExpired,applicationId);
 
 @override
 String toString() {
-  return 'AuthState(status: $status, busy: $busy, failure: $failure, sessionExpired: $sessionExpired)';
+  return 'AuthState(status: $status, busy: $busy, failure: $failure, sessionExpired: $sessionExpired, applicationId: $applicationId)';
 }
 
 
@@ -265,7 +269,7 @@ abstract mixin class _$AuthStateCopyWith<$Res> implements $AuthStateCopyWith<$Re
   factory _$AuthStateCopyWith(_AuthState value, $Res Function(_AuthState) _then) = __$AuthStateCopyWithImpl;
 @override @useResult
 $Res call({
- AuthStatus status, bool busy, AppFailure? failure, bool sessionExpired
+ AuthStatus status, bool busy, AppFailure? failure, bool sessionExpired, String? applicationId
 });
 
 
@@ -282,13 +286,14 @@ class __$AuthStateCopyWithImpl<$Res>
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? busy = null,Object? failure = freezed,Object? sessionExpired = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? busy = null,Object? failure = freezed,Object? sessionExpired = null,Object? applicationId = freezed,}) {
   return _then(_AuthState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as AuthStatus,busy: null == busy ? _self.busy : busy // ignore: cast_nullable_to_non_nullable
 as bool,failure: freezed == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
 as AppFailure?,sessionExpired: null == sessionExpired ? _self.sessionExpired : sessionExpired // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,applicationId: freezed == applicationId ? _self.applicationId : applicationId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

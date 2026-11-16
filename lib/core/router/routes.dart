@@ -5,6 +5,7 @@ abstract final class Routes {
   static const status = '/status';
   static const login = '/login';
   static const register = '/register';
+  static const applications = '/applications';
   static const businessName = '/business-name';
   static const onboarding = '/onboarding';
 }

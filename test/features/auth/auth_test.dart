@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:business_onboarding/app.dart';
+import 'package:business_onboarding/features/applications/data/application_summary.dart';
 import 'package:business_onboarding/core/errors/app_failure.dart';
 import 'package:business_onboarding/core/router/routes.dart';
 import 'package:business_onboarding/features/auth/data/auth_repository.dart';
 import 'package:business_onboarding/features/auth/logic/auth_cubit.dart';
+import 'package:business_onboarding/features/onboarding/data/models/application_status.dart';
 import 'package:business_onboarding/features/onboarding/data/models/onboarding_draft.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,24 +15,32 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/fake_draft_store.dart';
 import '../../helpers/sample_data.dart';
 
+/// Behaves like the real repository: signing in opens no application,
+/// registering and creating open the new one.
 class FakeAuthRepository implements AuthRepository {
   bool signedIn = false;
-  bool hasApplication = true;
   AppFailure? failure;
   final expired = StreamController<void>.broadcast();
   RegistrationForm? registered;
   String? createdBusiness;
 
+  /// The account's applications, newest first.
+  List<ApplicationSummary> apps = [
+    const ApplicationSummary(
+      id: 'app-1',
+      businessName: 'Corner Market',
+      status: ApplicationStatus.draft,
+    ),
+  ];
+
+  /// The open application (only while signed in).
+  String? openApplication = 'app-1';
+
   @override
   Future<bool> hasSession() async => signedIn;
 
   @override
-  Future<bool> needsApplication() async => !hasApplication;
-
-  String application = 'app-1';
-
-  @override
-  Future<String?> applicationId() async => hasApplication ? application : null;
+  Future<String?> applicationId() async => signedIn ? openApplication : null;
 
   @override
   Future<SignInResult> login({
@@ -39,7 +49,8 @@ class FakeAuthRepository implements AuthRepository {
   }) async {
     if (failure != null) throw failure!;
     signedIn = true;
-    return hasApplication ? SignInResult.ready : SignInResult.needsApplication;
+    openApplication = null;
+    return SignInResult.needsApplication;
   }
 
   @override
@@ -47,14 +58,34 @@ class FakeAuthRepository implements AuthRepository {
     if (failure != null) throw failure!;
     registered = form;
     signedIn = true;
+    await createApplication(form.businessName);
     return SignInResult.ready;
   }
+
+  @override
+  Future<List<ApplicationSummary>> listApplications() async {
+    if (failure != null) throw failure!;
+    return apps;
+  }
+
+  @override
+  Future<void> selectApplication(String applicationId) async =>
+      openApplication = applicationId;
 
   @override
   Future<void> createApplication(String businessName) async {
     if (failure != null) throw failure!;
     createdBusiness = businessName;
-    hasApplication = true;
+    final id = 'app-${apps.length + 1}';
+    apps = [
+      ApplicationSummary(
+        id: id,
+        businessName: businessName,
+        status: ApplicationStatus.draft,
+      ),
+      ...apps,
+    ];
+    openApplication = id;
   }
 
   @override
@@ -70,17 +101,38 @@ void main() {
       'a saved session is signed in',
       build: () => AuthCubit(repository: FakeAuthRepository()..signedIn = true),
       act: (cubit) => cubit.check(),
-      expect: () => [const AuthState(status: AuthStatus.signedIn)],
+      expect: () => [
+        const AuthState(status: AuthStatus.signedIn, applicationId: 'app-1'),
+      ],
     );
 
     blocTest<AuthCubit, AuthState>(
-      'login without an application asks for one',
-      build: () =>
-          AuthCubit(repository: FakeAuthRepository()..hasApplication = false),
+      'a saved session without an open application shows the list',
+      build: () => AuthCubit(
+        repository: FakeAuthRepository()
+          ..signedIn = true
+          ..openApplication = null,
+      ),
+      act: (cubit) => cubit.check(),
+      expect: () => [const AuthState(status: AuthStatus.needsApplication)],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'login opens no application: the agent picks one',
+      build: () => AuthCubit(repository: FakeAuthRepository()),
       act: (cubit) => cubit.login(email: 'a@b.co', password: 'x'),
       expect: () => [
         const AuthState(busy: true),
         const AuthState(status: AuthStatus.needsApplication),
+      ],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'selecting an application opens it',
+      build: () => AuthCubit(repository: FakeAuthRepository()..signedIn = true),
+      act: (cubit) => cubit.selectApplication('app-9'),
+      expect: () => [
+        const AuthState(status: AuthStatus.signedIn, applicationId: 'app-9'),
       ],
     );
 
@@ -138,12 +190,14 @@ void main() {
     testWidgets('signed out users land on Sign in', (tester) async {
       await open(tester, location: Routes.status);
       expect(
-        find.text('Sign in to continue your merchant application.'),
+        find.text('Sign in to continue your agent application.'),
         findsOneWidget,
       );
     });
 
-    testWidgets('signing in opens Welcome', (tester) async {
+    testWidgets('signing in shows the list, and a tap opens one', (
+      tester,
+    ) async {
       await open(tester);
 
       await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
@@ -161,6 +215,11 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
       await tester.pumpAndSettle();
 
+      expect(find.text('My applications'), findsOneWidget);
+      await tester.tap(find.text('Corner Market'));
+      await tester.pumpAndSettle();
+
+      expect(auth.openApplication, 'app-1');
       expect(find.text('Start application'), findsOneWidget);
     });
 
@@ -185,15 +244,17 @@ void main() {
       );
     });
 
-    testWidgets('an account without an application names its business', (
-      tester,
-    ) async {
+    testWidgets('an account without applications starts one', (tester) async {
       auth
         ..signedIn = true
-        ..hasApplication = false;
+        ..apps = []
+        ..openApplication = null;
       await open(tester);
 
-      expect(find.text('Name your business'), findsOneWidget);
+      expect(find.text('No applications yet'), findsOneWidget);
+      await tester.tap(find.text('New application'));
+      await tester.pumpAndSettle();
+
       await tester.enterText(find.byType(TextField), ' Corner Market ');
       await tester.tap(find.text('Continue'));
       await tester.pumpAndSettle();
@@ -202,36 +263,70 @@ void main() {
       expect(find.text('Start application'), findsOneWidget);
     });
 
-    testWidgets('sign out asks, then clears the draft', (tester) async {
-      auth.signedIn = true;
-      store = FakeDraftStore(const OnboardingDraft(business: completeStep1));
+    testWidgets('each application keeps its own draft', (tester) async {
+      auth
+        ..signedIn = true
+        ..apps = [
+          const ApplicationSummary(id: 'app-2', businessName: 'Second Shop'),
+          ...auth.apps,
+        ];
+      store = FakeDraftStore(
+        const OnboardingDraft(business: completeStep1, applicationId: 'app-1'),
+      );
+      await open(tester);
+      expect(find.text('Continue application'), findsOneWidget);
+
+      Future<void> openFromList(String name) async {
+        await tester.ensureVisible(find.text('My applications'));
+        await tester.tap(find.text('My applications'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(name));
+        await tester.pumpAndSettle();
+      }
+
+      await openFromList('Second Shop');
+      expect(find.text('Start application'), findsOneWidget);
+
+      await openFromList('Corner Market');
+      expect(find.text('Continue application'), findsOneWidget);
+      expect(store.drafts['app-1']?.business, completeStep1);
+    });
+
+    testWidgets('sign out asks, then clears every draft', (tester) async {
+      auth
+        ..signedIn = true
+        ..openApplication = null;
+      store = FakeDraftStore(
+        const OnboardingDraft(business: completeStep1, applicationId: 'app-1'),
+      );
       await open(tester);
 
-      await tester.tap(find.text('Sign out'));
+      await tester.tap(find.byTooltip('Sign out'));
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(FilledButton, 'Sign out'));
       await tester.pumpAndSettle();
 
-      expect(store.stored, isNull);
+      expect(store.drafts, isEmpty);
       expect(auth.signedIn, isFalse);
       expect(
-        find.text('Sign in to continue your merchant application.'),
+        find.text('Sign in to continue your agent application.'),
         findsOneWidget,
       );
     });
 
-    testWidgets("another account's draft is discarded on sign-in", (
+    testWidgets('drafts of applications not on the account are removed', (
       tester,
     ) async {
-      auth.signedIn = true;
-      store = FakeDraftStore(
-        const OnboardingDraft(business: completeStep1, applicationId: 'old'),
-      );
+      auth
+        ..signedIn = true
+        ..openApplication = null;
+      store = FakeDraftStore()
+        ..drafts['old'] = const OnboardingDraft(applicationId: 'old')
+        ..drafts['app-1'] = const OnboardingDraft(applicationId: 'app-1');
       await open(tester);
 
-      expect(store.stored?.applicationId, 'app-1');
-      expect(store.stored?.business, isNot(completeStep1));
-      expect(find.text('Start application'), findsOneWidget);
+      expect(find.text('Corner Market'), findsOneWidget);
+      expect(store.drafts.keys, ['app-1']);
     });
 
     testWidgets('the same account keeps its draft', (tester) async {
@@ -252,7 +347,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text('Sign in to continue your merchant application.'),
+        find.text('Sign in to continue your agent application.'),
         findsOneWidget,
       );
     });

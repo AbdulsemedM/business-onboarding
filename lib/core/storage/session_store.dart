@@ -11,8 +11,8 @@ class Session {
   final String accessToken;
   final String refreshToken;
 
-  /// Null until the account has an application (register creates one; an
-  /// account without one is asked for a business name).
+  /// The application open in the app. Null until the agent picks one from
+  /// their list (or creates one); an account can have several.
   final String? applicationId;
 }
 
@@ -24,6 +24,9 @@ abstract interface class SessionStore {
     required String refreshToken,
   });
   Future<void> writeApplicationId(String applicationId);
+
+  /// Forgets which application is open, keeping the tokens.
+  Future<void> clearApplicationId();
 
   /// Call on logout or when the session can't be refreshed.
   Future<void> clear();
@@ -89,6 +92,18 @@ class SecureSessionStore implements SessionStore {
   }
 
   @override
+  Future<void> clearApplicationId() async {
+    await _storage.delete(key: _application);
+    final current = await read();
+    if (current != null) {
+      _cache = Session(
+        accessToken: current.accessToken,
+        refreshToken: current.refreshToken,
+      );
+    }
+  }
+
+  @override
   Future<void> clear() async {
     await _storage.delete(key: _access);
     await _storage.delete(key: _refresh);
@@ -125,6 +140,16 @@ class InMemorySessionStore implements SessionStore {
       accessToken: current.accessToken,
       refreshToken: current.refreshToken,
       applicationId: applicationId,
+    );
+  }
+
+  @override
+  Future<void> clearApplicationId() async {
+    final current = session;
+    if (current == null) return;
+    session = Session(
+      accessToken: current.accessToken,
+      refreshToken: current.refreshToken,
     );
   }
 

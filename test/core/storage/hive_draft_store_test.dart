@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:business_onboarding/core/storage/draft_store.dart';
@@ -24,30 +25,81 @@ void main() {
     await dir.delete(recursive: true);
   });
 
+  const a = OnboardingDraft(
+    applicationId: 'app-a',
+    currentStep: OnboardingStep.compliance,
+  );
+  const b = OnboardingDraft(
+    applicationId: 'app-b',
+    currentStep: OnboardingStep.documents,
+  );
+
   test('returns null when nothing is saved', () async {
-    expect(await store.load(), isNull);
+    expect(await store.load('app-a'), isNull);
   });
 
-  test('saves and loads a draft', () async {
-    const draft = OnboardingDraft(currentStep: OnboardingStep.compliance);
-    await store.save(draft);
-    expect(await store.load(), draft);
+  test('keeps one draft per application', () async {
+    await store.save(a);
+    await store.save(b);
+    expect(await store.load('app-a'), a);
+    expect(await store.load('app-b'), b);
   });
 
-  test('clear removes the draft', () async {
+  test('does not save a draft without an application', () async {
     await store.save(const OnboardingDraft());
-    await store.clear();
-    expect(await store.load(), isNull);
+    expect(box.isEmpty, isTrue);
+  });
+
+  test('clear removes only that application draft', () async {
+    await store.save(a);
+    await store.save(b);
+    await store.clear('app-a');
+    expect(await store.load('app-a'), isNull);
+    expect(await store.load('app-b'), b);
+  });
+
+  test('clearAll removes every draft', () async {
+    await store.save(a);
+    await store.save(b);
+    await store.clearAll();
+    expect(box.isEmpty, isTrue);
+  });
+
+  test('retainOnly drops drafts of other applications', () async {
+    await store.save(a);
+    await store.save(b);
+    await store.retainOnly({'app-b'});
+    expect(await store.load('app-a'), isNull);
+    expect(await store.load('app-b'), b);
+  });
+
+  group('draft from an older build', () {
+    test('without an id goes to the first application opened', () async {
+      await box.put('current', jsonEncode(const OnboardingDraft().toJson()));
+      expect(
+        await store.load('app-a'),
+        const OnboardingDraft(applicationId: 'app-a'),
+      );
+      expect(box.containsKey('current'), isFalse);
+    });
+
+    test('with an id moves under that application', () async {
+      await box.put('current', jsonEncode(b.toJson()));
+      expect(await store.load('app-a'), isNull);
+      expect(await store.load('app-b'), b);
+    });
   });
 
   test('discards unreadable data', () async {
-    await box.put('current', 'not json');
-    expect(await store.load(), isNull);
+    await box.put('app:app-a', 'not json');
+    expect(await store.load('app-a'), isNull);
     expect(box.isEmpty, isTrue);
   });
 
   test('discards drafts from another schema version', () async {
-    await store.save(const OnboardingDraft(schemaVersion: -1));
-    expect(await store.load(), isNull);
+    await store.save(
+      const OnboardingDraft(applicationId: 'app-a', schemaVersion: -1),
+    );
+    expect(await store.load('app-a'), isNull);
   });
 }

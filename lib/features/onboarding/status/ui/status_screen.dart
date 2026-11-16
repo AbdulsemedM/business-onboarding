@@ -170,7 +170,7 @@ class _StatusBanner extends StatelessWidget {
       ),
       ApplicationStatus.submitted || ApplicationStatus.resubmitted => (
         Icons.hourglass_top_rounded,
-        colors.primary,
+        colors.secondary,
         l10n.statusLabelInReview,
         l10n.statusHeadlineInReview,
         l10n.statusBodyInReview,

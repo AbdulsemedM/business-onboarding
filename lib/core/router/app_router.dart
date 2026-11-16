@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/applications/ui/applications_screen.dart';
 import '../../features/auth/logic/auth_cubit.dart';
 import '../../features/auth/ui/business_name_screen.dart';
 import '../../features/auth/ui/login_screen.dart';
@@ -40,6 +41,10 @@ GoRouter createAppRouter({
         builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
+        path: Routes.applications,
+        builder: (context, state) => const ApplicationsScreen(),
+      ),
+      GoRoute(
         path: Routes.businessName,
         builder: (context, state) => const BusinessNameScreen(),
       ),
@@ -68,19 +73,19 @@ GoRouter createAppRouter({
   );
 }
 
-/// Signed-out users only see the sign-in screens; an account without an
-/// application must name its business first.
+/// Signed-out users only see the sign-in screens. Signed in with no
+/// application open, the agent stays on their list (or starts a new one).
 String? _redirect(AuthStatus status, GoRouterState state) {
   final location = state.matchedLocation;
   final onSignIn = location == Routes.login || location == Routes.register;
+  final onList =
+      location == Routes.applications || location == Routes.businessName;
   return switch (status) {
     // Still reading the saved session: stay put (Welcome shows a spinner).
     AuthStatus.unknown => null,
     AuthStatus.signedOut => onSignIn ? null : Routes.login,
-    AuthStatus.needsApplication =>
-      location == Routes.businessName ? null : Routes.businessName,
-    AuthStatus.signedIn =>
-      onSignIn || location == Routes.businessName ? Routes.welcome : null,
+    AuthStatus.needsApplication => onList ? null : Routes.applications,
+    AuthStatus.signedIn => onSignIn ? Routes.welcome : null,
   };
 }
 

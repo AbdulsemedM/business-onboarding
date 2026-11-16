@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/router/routes.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/name_form_field.dart';
 import '../logic/auth_cubit.dart';
 import 'auth_scaffold.dart';
-import 'sign_out.dart';
 
-/// For an account that has no application yet: starts one.
+/// Starts a new application (one per business) and opens it.
 class BusinessNameScreen extends StatefulWidget {
   const BusinessNameScreen({super.key});
 
@@ -20,10 +22,18 @@ class _BusinessNameScreenState extends State<BusinessNameScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   String? _name;
 
-  void _submit() {
+  Future<void> _submit() async {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    context.read<AuthCubit>().createApplication(_name!);
+    final auth = context.read<AuthCubit>();
+    await auth.createApplication(_name!);
+    if (!mounted || auth.state.failure != null) return;
+    context.go(Routes.welcome);
+  }
+
+  void _back() {
+    context.read<AuthCubit>().clearFailure();
+    context.go(Routes.applications);
   }
 
   @override
@@ -35,6 +45,7 @@ class _BusinessNameScreenState extends State<BusinessNameScreen> {
     return AuthScaffold(
       title: l10n.authBusinessNameTitle,
       body: l10n.authBusinessNameBody,
+      onBack: state.busy ? null : _back,
       children: [
         FormBuilder(
           key: _formKey,
@@ -56,11 +67,6 @@ class _BusinessNameScreenState extends State<BusinessNameScreen> {
           label: l10n.authContinue,
           busy: state.busy,
           onPressed: _submit,
-        ),
-        const SizedBox(height: 8),
-        TextButton(
-          onPressed: state.busy ? null : () => confirmSignOut(context),
-          child: Text(l10n.authSignOut),
         ),
       ],
     );

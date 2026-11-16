@@ -103,13 +103,13 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Become a FastPay merchant'**
+  /// **'Become a FastPay agent'**
   String get welcomeTitle;
 
   /// No description provided for @welcomeBody.
   ///
   /// In en, this message translates to:
-  /// **'Tell us about your business, upload a few documents, and we\'ll review your application. Your progress is saved on this device so you can finish later.'**
+  /// **'We save your progress as you go.'**
   String get welcomeBody;
 
   /// No description provided for @authSignInTitle.
@@ -121,7 +121,7 @@ abstract class AppLocalizations {
   /// No description provided for @authSignInBody.
   ///
   /// In en, this message translates to:
-  /// **'Sign in to continue your merchant application.'**
+  /// **'Sign in to continue your agent application.'**
   String get authSignInBody;
 
   /// No description provided for @authEmail.
@@ -241,13 +241,13 @@ abstract class AppLocalizations {
   /// No description provided for @authBusinessNameTitle.
   ///
   /// In en, this message translates to:
-  /// **'Name your business'**
+  /// **'New application'**
   String get authBusinessNameTitle;
 
   /// No description provided for @authBusinessNameBody.
   ///
   /// In en, this message translates to:
-  /// **'Your account doesn\'t have an application yet. Enter your business name to start one.'**
+  /// **'Each application is for one business. Enter its name to start.'**
   String get authBusinessNameBody;
 
   /// No description provided for @authContinue.
@@ -292,41 +292,65 @@ abstract class AppLocalizations {
   /// **'Passwords don\'t match'**
   String get errorPasswordMatch;
 
+  /// No description provided for @applicationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My applications'**
+  String get applicationsTitle;
+
+  /// No description provided for @applicationsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New application'**
+  String get applicationsNew;
+
+  /// No description provided for @applicationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No applications yet'**
+  String get applicationsEmptyTitle;
+
+  /// No description provided for @applicationsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Start one for each business you want to bring to FastPay.'**
+  String get applicationsEmptyBody;
+
+  /// No description provided for @applicationsOpenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens this application'**
+  String get applicationsOpenHint;
+
   /// No description provided for @welcomeStepsHeading.
   ///
   /// In en, this message translates to:
-  /// **'How it works'**
+  /// **'Apply in 4 guided steps'**
   String get welcomeStepsHeading;
 
-  /// No description provided for @welcomeStep1Body.
+  /// No description provided for @welcomeStepBusiness.
   ///
   /// In en, this message translates to:
-  /// **'Your details, address and tax information.'**
-  String get welcomeStep1Body;
+  /// **'Business'**
+  String get welcomeStepBusiness;
 
-  /// No description provided for @welcomeStep2Body.
+  /// No description provided for @welcomeStepDocuments.
   ///
   /// In en, this message translates to:
-  /// **'IDs, registration, license and photos.'**
-  String get welcomeStep2Body;
+  /// **'Documents'**
+  String get welcomeStepDocuments;
 
-  /// No description provided for @welcomeStep3Body.
+  /// No description provided for @welcomeStepCompliance.
   ///
   /// In en, this message translates to:
-  /// **'Who processes transactions and your compliance officer.'**
-  String get welcomeStep3Body;
+  /// **'Compliance'**
+  String get welcomeStepCompliance;
 
-  /// No description provided for @welcomeStep4Body.
+  /// No description provided for @welcomeStepSubmit.
   ///
   /// In en, this message translates to:
-  /// **'Check everything, then submit for review.'**
-  String get welcomeStep4Body;
-
-  /// No description provided for @welcomeSavedNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Your progress is saved on this device.'**
-  String get welcomeSavedNote;
+  /// **'Submit'**
+  String get welcomeStepSubmit;
 
   /// No description provided for @startApplication.
   ///

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,135 +7,75 @@ import '../../../core/router/routes.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/brand_logo.dart';
-import 'sign_out.dart';
 import '../../onboarding/logic/wizard_cubit.dart';
 import '../../onboarding/logic/wizard_state.dart';
 
+/// Start screen: navy backdrop, the logo and title at the top, a white card
+/// in the middle showing the four wizard steps, and the button at the bottom.
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
+  static const maxContentWidth = 480.0;
+
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
-    return Scaffold(
-      body: BlocBuilder<WizardCubit, WizardState>(
-        builder: (context, state) {
-          if (!state.isLoaded) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return Column(
-            children: [
-              // The header scrolls with the steps, so large text sizes never
-              // overflow; only the button stays pinned at the bottom.
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: [
-                    const _Hero(),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.welcomeStepsHeading,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 16),
-                          _StepRow(
-                            number: 1,
-                            icon: Icons.storefront_outlined,
-                            title: l10n.stepBusinessTitle,
-                            body: l10n.welcomeStep1Body,
-                          ),
-                          _StepRow(
-                            number: 2,
-                            icon: Icons.upload_file_outlined,
-                            title: l10n.stepDocumentsTitle,
-                            body: l10n.welcomeStep2Body,
-                          ),
-                          _StepRow(
-                            number: 3,
-                            icon: Icons.verified_user_outlined,
-                            title: l10n.stepComplianceTitle,
-                            body: l10n.welcomeStep3Body,
-                          ),
-                          _StepRow(
-                            number: 4,
-                            icon: Icons.fact_check_outlined,
-                            title: l10n.stepReviewTitle,
-                            body: l10n.welcomeStep4Body,
-                            isLast: true,
-                          ),
-                        ],
-                      ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: AppTheme.secondary,
+        body: BlocBuilder<WizardCubit, WizardState>(
+          builder: (context, state) {
+            if (!state.isLoaded) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppTheme.primary),
+              );
+            }
+            // At least one screen tall, with the free space shared between
+            // the hero, the card and the button; the page scrolls at large
+            // text sizes.
+            return LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                child: BrandBackdrop(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
                     ),
-                  ],
-                ),
-              ),
-              SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      FilledButton(
-                        // After a submit the merchant follows the review,
-                        // not the wizard.
-                        onPressed: () => context.go(
-                          state.draft.submitted
-                              ? Routes.status
-                              : state.step.path,
-                        ),
-                        child: Text(
-                          state.draft.submitted
-                              ? l10n.statusViewStatus
-                              : state.hasSavedDraft
-                              ? l10n.continueApplication
-                              : l10n.startApplication,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton(
-                        onPressed: () => confirmSignOut(context),
-                        child: Text(l10n.authSignOut),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.lock_outline,
-                            size: 16,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
+                    child: SafeArea(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: maxContentWidth,
                           ),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              l10n.welcomeSavedNote,
-                              style: Theme.of(context).textTheme.bodySmall,
-                              textAlign: TextAlign.center,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const _Hero(),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 28),
+                                  child: _StepsCard(),
+                                ),
+                                _Actions(state: state),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ],
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
 }
 
-/// Brand header: blue to navy, with the title and a short intro in white.
+/// The logo, the title and a one-line promise.
 class _Hero extends StatelessWidget {
   const _Hero();
 
@@ -142,57 +83,76 @@ class _Hero extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppTheme.primary, AppTheme.secondary],
-        ),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const BrandMark(size: 52),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      l10n.appTitle,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: AppTheme.white,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 28),
-              Text(
-                l10n.welcomeTitle,
-                // Announced as a heading by screen readers.
-                semanticsLabel: l10n.welcomeTitle,
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  color: AppTheme.white,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                l10n.welcomeBody,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: AppTheme.white.withValues(alpha: 0.88),
-                ),
-              ),
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const BrandBadge(size: 72),
+        const SizedBox(height: 24),
+        Semantics(
+          header: true,
+          child: Text(
+            l10n.welcomeTitle,
+            style: theme.textTheme.displaySmall?.copyWith(
+              color: AppTheme.white,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+              height: 1.1,
+            ),
           ),
         ),
+        const SizedBox(height: 10),
+        // Sky blue on navy reads at about 5.5:1.
+        Text(
+          l10n.welcomeBody,
+          style: theme.textTheme.titleMedium?.copyWith(color: AppTheme.primary),
+        ),
+      ],
+    );
+  }
+}
+
+/// White card with the four steps as a connected 1-2-3-4 path, so it reads
+/// as a guided wizard.
+class _StepsCard extends StatelessWidget {
+  const _StepsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final steps = [
+      (Icons.storefront_rounded, l10n.welcomeStepBusiness),
+      (Icons.upload_file_rounded, l10n.welcomeStepDocuments),
+      (Icons.verified_user_rounded, l10n.welcomeStepCompliance),
+      (Icons.send_rounded, l10n.welcomeStepSubmit),
+    ];
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            header: true,
+            child: Text(
+              l10n.welcomeStepsHeading,
+              style: theme.textTheme.titleMedium,
+            ),
+          ),
+          const SizedBox(height: 16),
+          for (final (i, (icon, label)) in steps.indexed) ...[
+            _StepRow(
+              number: i + 1,
+              total: steps.length,
+              icon: icon,
+              label: label,
+            ),
+            if (i < steps.length - 1) const _Connector(),
+          ],
+        ],
       ),
     );
   }
@@ -201,68 +161,107 @@ class _Hero extends StatelessWidget {
 class _StepRow extends StatelessWidget {
   const _StepRow({
     required this.number,
+    required this.total,
     required this.icon,
-    required this.title,
-    required this.body,
-    this.isLast = false,
+    required this.label,
   });
 
+  static const circleSize = 40.0;
+
   final int number;
+  final int total;
   final IconData icon;
-  final String title;
-  final String body;
-  final bool isLast;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
     return Semantics(
-      container: true,
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Column(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: colors.primaryContainer,
-                    shape: BoxShape.circle,
-                  ),
-                  child: ExcludeSemantics(
-                    child: Icon(icon, color: colors.primary, size: 22),
-                  ),
-                ),
-                if (!isLast)
-                  Expanded(
-                    child: Container(
-                      width: 2,
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      color: colors.outlineVariant,
-                    ),
-                  ),
-              ],
+      label: '${l10n.stepProgress(number, total)}: $label',
+      excludeSemantics: true,
+      child: Row(
+        children: [
+          Container(
+            width: circleSize,
+            height: circleSize,
+            decoration: const BoxDecoration(
+              color: AppTheme.primary,
+              shape: BoxShape.circle,
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(bottom: isLast ? 0 : 20, top: 2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: theme.textTheme.titleSmall),
-                    const SizedBox(height: 2),
-                    Text(body, style: theme.textTheme.bodyMedium),
-                  ],
-                ),
-              ),
+            child: Icon(icon, size: 20, color: AppTheme.white),
+          ),
+          const SizedBox(width: 14),
+          Expanded(child: Text(label, style: theme.textTheme.titleSmall)),
+          // The step number, like a wizard's progress.
+          Text(
+            '$number/$total',
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The line joining one step's circle to the next.
+class _Connector extends StatelessWidget {
+  const _Connector();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(
+        start: _StepRow.circleSize / 2 - 1,
+      ),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Container(
+          width: 2,
+          height: 14,
+          margin: const EdgeInsets.symmetric(vertical: 2),
+          color: AppTheme.primary,
         ),
       ),
+    );
+  }
+}
+
+/// The main button and the way back to the list, on the navy background.
+class _Actions extends StatelessWidget {
+  const _Actions({required this.state});
+
+  final WizardState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        FilledButton(
+          // After a submit the agent follows the review, not the wizard.
+          onPressed: () => context.go(
+            state.draft.submitted ? Routes.status : state.step.path,
+          ),
+          child: Text(
+            state.draft.submitted
+                ? l10n.statusViewStatus
+                : state.hasSavedDraft
+                ? l10n.continueApplication
+                : l10n.startApplication,
+          ),
+        ),
+        const SizedBox(height: 4),
+        TextButton(
+          style: TextButton.styleFrom(foregroundColor: AppTheme.white),
+          onPressed: () => context.go(Routes.applications),
+          child: Text(l10n.applicationsTitle),
+        ),
+      ],
     );
   }
 }

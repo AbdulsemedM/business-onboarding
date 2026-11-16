@@ -150,5 +150,4 @@ void main() {
     expect(repository.removedPartners, ['owner-9']);
     expect(find.text('Partner 2'), findsNothing);
   });
-
 }

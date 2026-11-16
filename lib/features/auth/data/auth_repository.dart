@@ -5,8 +5,10 @@ import 'package:dio/dio.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/api/interceptors/error_interceptor.dart';
 import '../../../core/storage/session_store.dart';
+import '../../applications/data/application_summary.dart';
+import '../../onboarding/data/models/application_status.dart';
 
-/// What the merchant enters to create an account (backend
+/// What the agent enters to create an account (backend
 /// `POST /api/v1/auth/partner/register`). Personal data: never log it.
 class RegistrationForm {
   const RegistrationForm({
@@ -30,7 +32,8 @@ class RegistrationForm {
   final String businessName;
 }
 
-/// After signing in, whether the account still needs an application.
+/// After signing in: an application is open ([ready]), or the agent picks
+/// one from their list first ([needsApplication]).
 enum SignInResult { ready, needsApplication }
 
 /// Sign-in, registration, and the session. Errors are thrown as
@@ -39,18 +42,25 @@ abstract interface class AuthRepository {
   /// True if a session is saved on the device.
   Future<bool> hasSession();
 
-  /// Also true if the saved session has no application yet.
-  Future<bool> needsApplication();
-
-  /// The signed-in application's id, or null.
+  /// The open application's id, or null when none is open.
   Future<String?> applicationId();
 
+  /// Signs in. No application is open afterwards: the agent picks one from
+  /// their list.
   Future<SignInResult> login({required String email, required String password});
 
-  /// Creates the account (and its application), then signs in.
+  /// Creates the account (and its first application), then signs in with
+  /// that application open.
   Future<SignInResult> register(RegistrationForm form);
 
-  /// For an account with no application yet.
+  /// Every application on the account, newest first.
+  Future<List<ApplicationSummary>> listApplications();
+
+  /// Opens one of the account's applications.
+  Future<void> selectApplication(String applicationId);
+
+  /// Starts a new application (business names are unique per account) and
+  /// opens it.
   Future<void> createApplication(String businessName);
 
   Future<void> logout();
@@ -77,10 +87,6 @@ class ApiAuthRepository implements AuthRepository {
   Future<bool> hasSession() async => await _session.read() != null;
 
   @override
-  Future<bool> needsApplication() async =>
-      (await _session.read())?.applicationId == null;
-
-  @override
   Future<String?> applicationId() async =>
       (await _session.read())?.applicationId;
 
@@ -98,7 +104,8 @@ class ApiAuthRepository implements AuthRepository {
       accessToken: data['accessToken'] as String,
       refreshToken: data['refreshToken'] as String,
     );
-    return _pickApplication();
+    await _session.clearApplicationId();
+    return SignInResult.needsApplication;
   });
 
   @override
@@ -143,23 +150,32 @@ class ApiAuthRepository implements AuthRepository {
     await _session.clear();
   }
 
-  /// Uses the account's most recent application, if any.
-  // TODO(product): let the merchant choose when they have several.
-  Future<SignInResult> _pickApplication() async {
-    final response = await _dio.get<dynamic>(
-      '/api/v1/partner/applications',
-      queryParameters: {'page': 0, 'size': 50},
-    );
-    final items = (dataOf(response)['items'] as List?) ?? const [];
-    final apps = items.whereType<Map<String, dynamic>>().toList()
-      ..sort(
-        (a, b) =>
-            '${b['createdAt'] ?? ''}'.compareTo('${a['createdAt'] ?? ''}'),
+  @override
+  Future<List<ApplicationSummary>> listApplications() => _guard(() async {
+    final apps = <ApplicationSummary>[];
+    for (var page = 0; ; page++) {
+      final response = await _dio.get<dynamic>(
+        '/api/v1/partner/applications',
+        queryParameters: {'page': page, 'size': 50},
       );
-    if (apps.isEmpty) return SignInResult.needsApplication;
-    await _session.writeApplicationId(apps.first['id'] as String);
-    return SignInResult.ready;
-  }
+      final data = dataOf(response);
+      final items = (data['items'] as List?) ?? const [];
+      apps.addAll(
+        items.whereType<Map<String, dynamic>>().map(
+          ApplicationSummary.fromJson,
+        ),
+      );
+      final pagination = data['pagination'];
+      if (pagination is! Map || pagination['hasNext'] != true) break;
+    }
+    final epoch = DateTime.fromMillisecondsSinceEpoch(0);
+    return apps
+      ..sort((a, b) => (b.createdAt ?? epoch).compareTo(a.createdAt ?? epoch));
+  });
+
+  @override
+  Future<void> selectApplication(String applicationId) =>
+      _session.writeApplicationId(applicationId);
 
   Future<T> _guard<T>(Future<T> Function() call) async {
     try {
@@ -170,20 +186,26 @@ class ApiAuthRepository implements AuthRepository {
   }
 }
 
-/// Always signed in, with an application. Used with the mock API.
+/// Always signed in, with one application open. Used with the mock API.
+/// New applications are kept in memory.
 class MockAuthRepository implements AuthRepository {
   bool _signedIn = true;
+  String? _open = mockApplicationId;
+  final _apps = [
+    const ApplicationSummary(
+      id: mockApplicationId,
+      businessName: 'My business',
+      status: ApplicationStatus.draft,
+    ),
+  ];
+
+  static const mockApplicationId = 'mock-application';
 
   @override
   Future<bool> hasSession() async => _signedIn;
 
   @override
-  Future<bool> needsApplication() async => false;
-
-  @override
-  Future<String?> applicationId() async => mockApplicationId;
-
-  static const mockApplicationId = 'mock-application';
+  Future<String?> applicationId() async => _open;
 
   @override
   Future<SignInResult> login({
@@ -191,20 +213,43 @@ class MockAuthRepository implements AuthRepository {
     required String password,
   }) async {
     _signedIn = true;
-    return SignInResult.ready;
+    _open = null;
+    return SignInResult.needsApplication;
   }
 
   @override
   Future<SignInResult> register(RegistrationForm form) async {
     _signedIn = true;
+    await createApplication(form.businessName);
     return SignInResult.ready;
   }
 
   @override
-  Future<void> createApplication(String businessName) async {}
+  Future<List<ApplicationSummary>> listApplications() async =>
+      List.unmodifiable(_apps.reversed);
 
   @override
-  Future<void> logout() async => _signedIn = false;
+  Future<void> selectApplication(String applicationId) async =>
+      _open = applicationId;
+
+  @override
+  Future<void> createApplication(String businessName) async {
+    final id = 'mock-application-${_apps.length + 1}';
+    _apps.add(
+      ApplicationSummary(
+        id: id,
+        businessName: businessName.trim(),
+        status: ApplicationStatus.draft,
+      ),
+    );
+    _open = id;
+  }
+
+  @override
+  Future<void> logout() async {
+    _signedIn = false;
+    _open = null;
+  }
 
   @override
   Stream<void> get sessionExpired => const Stream.empty();
