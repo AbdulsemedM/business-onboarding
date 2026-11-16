@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$OnboardingDraft {
 
- int get schemaVersion; OnboardingStep get currentStep; Step1BusinessData get business; Step2DocumentsData get documents; Step3ComplianceData get compliance;
+ int get schemaVersion; OnboardingStep get currentStep; Step1BusinessData get business; Step2DocumentsData get documents; Step3ComplianceData get compliance;/// Sent for review at least once. The app then opens on the status
+/// screen. The server's status is the source of truth; this only routes.
+ bool get submitted;
 /// Create a copy of OnboardingDraft
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +30,16 @@ $OnboardingDraftCopyWith<OnboardingDraft> get copyWith => _$OnboardingDraftCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OnboardingDraft&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.currentStep, currentStep) || other.currentStep == currentStep)&&(identical(other.business, business) || other.business == business)&&(identical(other.documents, documents) || other.documents == documents)&&(identical(other.compliance, compliance) || other.compliance == compliance));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OnboardingDraft&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.currentStep, currentStep) || other.currentStep == currentStep)&&(identical(other.business, business) || other.business == business)&&(identical(other.documents, documents) || other.documents == documents)&&(identical(other.compliance, compliance) || other.compliance == compliance)&&(identical(other.submitted, submitted) || other.submitted == submitted));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,schemaVersion,currentStep,business,documents,compliance);
+int get hashCode => Object.hash(runtimeType,schemaVersion,currentStep,business,documents,compliance,submitted);
 
 @override
 String toString() {
-  return 'OnboardingDraft(schemaVersion: $schemaVersion, currentStep: $currentStep, business: $business, documents: $documents, compliance: $compliance)';
+  return 'OnboardingDraft(schemaVersion: $schemaVersion, currentStep: $currentStep, business: $business, documents: $documents, compliance: $compliance, submitted: $submitted)';
 }
 
 
@@ -48,7 +50,7 @@ abstract mixin class $OnboardingDraftCopyWith<$Res>  {
   factory $OnboardingDraftCopyWith(OnboardingDraft value, $Res Function(OnboardingDraft) _then) = _$OnboardingDraftCopyWithImpl;
 @useResult
 $Res call({
- int schemaVersion, OnboardingStep currentStep, Step1BusinessData business, Step2DocumentsData documents, Step3ComplianceData compliance
+ int schemaVersion, OnboardingStep currentStep, Step1BusinessData business, Step2DocumentsData documents, Step3ComplianceData compliance, bool submitted
 });
 
 
@@ -65,14 +67,15 @@ class _$OnboardingDraftCopyWithImpl<$Res>
 
 /// Create a copy of OnboardingDraft
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? currentStep = null,Object? business = null,Object? documents = null,Object? compliance = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? schemaVersion = null,Object? currentStep = null,Object? business = null,Object? documents = null,Object? compliance = null,Object? submitted = null,}) {
   return _then(_self.copyWith(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
 as int,currentStep: null == currentStep ? _self.currentStep : currentStep // ignore: cast_nullable_to_non_nullable
 as OnboardingStep,business: null == business ? _self.business : business // ignore: cast_nullable_to_non_nullable
 as Step1BusinessData,documents: null == documents ? _self.documents : documents // ignore: cast_nullable_to_non_nullable
 as Step2DocumentsData,compliance: null == compliance ? _self.compliance : compliance // ignore: cast_nullable_to_non_nullable
-as Step3ComplianceData,
+as Step3ComplianceData,submitted: null == submitted ? _self.submitted : submitted // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 /// Create a copy of OnboardingDraft
@@ -184,10 +187,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  OnboardingStep currentStep,  Step1BusinessData business,  Step2DocumentsData documents,  Step3ComplianceData compliance)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int schemaVersion,  OnboardingStep currentStep,  Step1BusinessData business,  Step2DocumentsData documents,  Step3ComplianceData compliance,  bool submitted)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _OnboardingDraft() when $default != null:
-return $default(_that.schemaVersion,_that.currentStep,_that.business,_that.documents,_that.compliance);case _:
+return $default(_that.schemaVersion,_that.currentStep,_that.business,_that.documents,_that.compliance,_that.submitted);case _:
   return orElse();
 
 }
@@ -205,10 +208,10 @@ return $default(_that.schemaVersion,_that.currentStep,_that.business,_that.docum
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  OnboardingStep currentStep,  Step1BusinessData business,  Step2DocumentsData documents,  Step3ComplianceData compliance)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int schemaVersion,  OnboardingStep currentStep,  Step1BusinessData business,  Step2DocumentsData documents,  Step3ComplianceData compliance,  bool submitted)  $default,) {final _that = this;
 switch (_that) {
 case _OnboardingDraft():
-return $default(_that.schemaVersion,_that.currentStep,_that.business,_that.documents,_that.compliance);case _:
+return $default(_that.schemaVersion,_that.currentStep,_that.business,_that.documents,_that.compliance,_that.submitted);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -225,10 +228,10 @@ return $default(_that.schemaVersion,_that.currentStep,_that.business,_that.docum
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  OnboardingStep currentStep,  Step1BusinessData business,  Step2DocumentsData documents,  Step3ComplianceData compliance)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int schemaVersion,  OnboardingStep currentStep,  Step1BusinessData business,  Step2DocumentsData documents,  Step3ComplianceData compliance,  bool submitted)?  $default,) {final _that = this;
 switch (_that) {
 case _OnboardingDraft() when $default != null:
-return $default(_that.schemaVersion,_that.currentStep,_that.business,_that.documents,_that.compliance);case _:
+return $default(_that.schemaVersion,_that.currentStep,_that.business,_that.documents,_that.compliance,_that.submitted);case _:
   return null;
 
 }
@@ -240,7 +243,7 @@ return $default(_that.schemaVersion,_that.currentStep,_that.business,_that.docum
 @JsonSerializable()
 
 class _OnboardingDraft implements OnboardingDraft {
-  const _OnboardingDraft({this.schemaVersion = OnboardingDraft.currentSchemaVersion, this.currentStep = OnboardingStep.business, this.business = const Step1BusinessData(), this.documents = const Step2DocumentsData(), this.compliance = const Step3ComplianceData()});
+  const _OnboardingDraft({this.schemaVersion = OnboardingDraft.currentSchemaVersion, this.currentStep = OnboardingStep.business, this.business = const Step1BusinessData(), this.documents = const Step2DocumentsData(), this.compliance = const Step3ComplianceData(), this.submitted = false});
   factory _OnboardingDraft.fromJson(Map<String, dynamic> json) => _$OnboardingDraftFromJson(json);
 
 @override@JsonKey() final  int schemaVersion;
@@ -248,6 +251,9 @@ class _OnboardingDraft implements OnboardingDraft {
 @override@JsonKey() final  Step1BusinessData business;
 @override@JsonKey() final  Step2DocumentsData documents;
 @override@JsonKey() final  Step3ComplianceData compliance;
+/// Sent for review at least once. The app then opens on the status
+/// screen. The server's status is the source of truth; this only routes.
+@override@JsonKey() final  bool submitted;
 
 /// Create a copy of OnboardingDraft
 /// with the given fields replaced by the non-null parameter values.
@@ -262,16 +268,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OnboardingDraft&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.currentStep, currentStep) || other.currentStep == currentStep)&&(identical(other.business, business) || other.business == business)&&(identical(other.documents, documents) || other.documents == documents)&&(identical(other.compliance, compliance) || other.compliance == compliance));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OnboardingDraft&&(identical(other.schemaVersion, schemaVersion) || other.schemaVersion == schemaVersion)&&(identical(other.currentStep, currentStep) || other.currentStep == currentStep)&&(identical(other.business, business) || other.business == business)&&(identical(other.documents, documents) || other.documents == documents)&&(identical(other.compliance, compliance) || other.compliance == compliance)&&(identical(other.submitted, submitted) || other.submitted == submitted));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,schemaVersion,currentStep,business,documents,compliance);
+int get hashCode => Object.hash(runtimeType,schemaVersion,currentStep,business,documents,compliance,submitted);
 
 @override
 String toString() {
-  return 'OnboardingDraft(schemaVersion: $schemaVersion, currentStep: $currentStep, business: $business, documents: $documents, compliance: $compliance)';
+  return 'OnboardingDraft(schemaVersion: $schemaVersion, currentStep: $currentStep, business: $business, documents: $documents, compliance: $compliance, submitted: $submitted)';
 }
 
 
@@ -282,7 +288,7 @@ abstract mixin class _$OnboardingDraftCopyWith<$Res> implements $OnboardingDraft
   factory _$OnboardingDraftCopyWith(_OnboardingDraft value, $Res Function(_OnboardingDraft) _then) = __$OnboardingDraftCopyWithImpl;
 @override @useResult
 $Res call({
- int schemaVersion, OnboardingStep currentStep, Step1BusinessData business, Step2DocumentsData documents, Step3ComplianceData compliance
+ int schemaVersion, OnboardingStep currentStep, Step1BusinessData business, Step2DocumentsData documents, Step3ComplianceData compliance, bool submitted
 });
 
 
@@ -299,14 +305,15 @@ class __$OnboardingDraftCopyWithImpl<$Res>
 
 /// Create a copy of OnboardingDraft
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? currentStep = null,Object? business = null,Object? documents = null,Object? compliance = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? schemaVersion = null,Object? currentStep = null,Object? business = null,Object? documents = null,Object? compliance = null,Object? submitted = null,}) {
   return _then(_OnboardingDraft(
 schemaVersion: null == schemaVersion ? _self.schemaVersion : schemaVersion // ignore: cast_nullable_to_non_nullable
 as int,currentStep: null == currentStep ? _self.currentStep : currentStep // ignore: cast_nullable_to_non_nullable
 as OnboardingStep,business: null == business ? _self.business : business // ignore: cast_nullable_to_non_nullable
 as Step1BusinessData,documents: null == documents ? _self.documents : documents // ignore: cast_nullable_to_non_nullable
 as Step2DocumentsData,compliance: null == compliance ? _self.compliance : compliance // ignore: cast_nullable_to_non_nullable
-as Step3ComplianceData,
+as Step3ComplianceData,submitted: null == submitted ? _self.submitted : submitted // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

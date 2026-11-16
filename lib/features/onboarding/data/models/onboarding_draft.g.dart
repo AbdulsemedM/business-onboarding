@@ -26,6 +26,7 @@ _OnboardingDraft _$OnboardingDraftFromJson(
       : Step3ComplianceData.fromJson(
           json['compliance'] as Map<String, dynamic>,
         ),
+  submitted: json['submitted'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$OnboardingDraftToJson(_OnboardingDraft instance) =>
@@ -35,6 +36,7 @@ Map<String, dynamic> _$OnboardingDraftToJson(_OnboardingDraft instance) =>
       'business': instance.business.toJson(),
       'documents': instance.documents.toJson(),
       'compliance': instance.compliance.toJson(),
+      'submitted': instance.submitted,
     };
 
 const _$OnboardingStepEnumMap = {

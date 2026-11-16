@@ -19,6 +19,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tell us about your business, upload a few documents, and we\'ll review your application. Your progress is saved on this device so you can finish later.';
 
   @override
+  String get welcomeStepsHeading => 'How it works';
+
+  @override
+  String get welcomeStep1Body => 'Your details, address and tax information.';
+
+  @override
+  String get welcomeStep2Body => 'IDs, registration, license and photos.';
+
+  @override
+  String get welcomeStep3Body =>
+      'Who processes transactions and your compliance officer.';
+
+  @override
+  String get welcomeStep4Body => 'Check everything, then submit for review.';
+
+  @override
+  String get welcomeSavedNote => 'Your progress is saved on this device.';
+
+  @override
   String get startApplication => 'Start application';
 
   @override
@@ -65,6 +84,210 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusTitle => 'Application status';
+
+  @override
+  String get statusRefresh => 'Refresh';
+
+  @override
+  String statusAppNumber(String number) {
+    return 'Application $number';
+  }
+
+  @override
+  String statusSubmittedOn(String date) {
+    return 'Submitted $date';
+  }
+
+  @override
+  String get statusLabelDraft => 'Not submitted';
+
+  @override
+  String get statusLabelInReview => 'In review';
+
+  @override
+  String get statusLabelActionRequired => 'Action needed';
+
+  @override
+  String get statusLabelApproved => 'Approved';
+
+  @override
+  String get statusLabelRejected => 'Not approved';
+
+  @override
+  String get statusHeadlineDraft => 'Not submitted yet';
+
+  @override
+  String get statusBodyDraft =>
+      'Finish your application and submit it for review.';
+
+  @override
+  String get statusHeadlineInReview => 'We\'re reviewing your application';
+
+  @override
+  String get statusBodyInReview =>
+      'We\'ll let you know when there\'s an update, or if we need anything else.';
+
+  @override
+  String get statusHeadlineActionRequired => 'A few things need your attention';
+
+  @override
+  String get statusBodyActionRequired =>
+      'Our reviewer asked for the changes below. Fix them, then resubmit.';
+
+  @override
+  String get statusHeadlineApproved => 'You\'re approved';
+
+  @override
+  String get statusBodyApproved =>
+      'Welcome to FastPay. We\'ll be in touch with your next steps.';
+
+  @override
+  String get statusHeadlineRejected => 'We couldn\'t approve this application';
+
+  @override
+  String get statusBodyRejected =>
+      'Contact FastPay support if you have questions about this decision.';
+
+  @override
+  String get statusDocsSection => 'Documents to upload again';
+
+  @override
+  String get statusDocsHint =>
+      'Upload a new file for each document. Only these need to change.';
+
+  @override
+  String get statusFieldsSection => 'Details to change';
+
+  @override
+  String get statusFieldsHint =>
+      'Change these details, then submit again from the Review step.';
+
+  @override
+  String statusFixIn(String step) {
+    return 'Fix in $step';
+  }
+
+  @override
+  String get statusResubmit => 'Resubmit for review';
+
+  @override
+  String get statusResubmitBlocked =>
+      'Upload a new file for every document above to resubmit.';
+
+  @override
+  String get statusContinue => 'Continue application';
+
+  @override
+  String get statusRetry => 'Try again';
+
+  @override
+  String get statusViewStatus => 'View application status';
+
+  @override
+  String get reviewIntro =>
+      'Check your answers before you submit. Tap Edit to change a section.';
+
+  @override
+  String get reviewEdit => 'Edit';
+
+  @override
+  String reviewEditSection(String section) {
+    return 'Edit $section';
+  }
+
+  @override
+  String get reviewOwner => 'Owner';
+
+  @override
+  String get reviewHours => 'Open';
+
+  @override
+  String reviewHoursValue(String days, String opens, String closes) {
+    return '$days, $opens to $closes';
+  }
+
+  @override
+  String get reviewAddress => 'Business address';
+
+  @override
+  String get reviewSubtenant => 'Subleases this location';
+
+  @override
+  String get reviewTimeAtLocation => 'Time at location';
+
+  @override
+  String get reviewTimeAtResidence => 'Time at residential home';
+
+  @override
+  String reviewYearsMonths(int years, int months) {
+    String _temp0 = intl.Intl.pluralLogic(
+      years,
+      locale: localeName,
+      other: '$years years',
+      one: '1 year',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      months,
+      locale: localeName,
+      other: '$months months',
+      one: '1 month',
+    );
+    return '$_temp0, $_temp1';
+  }
+
+  @override
+  String get reviewYes => 'Yes';
+
+  @override
+  String get reviewNo => 'No';
+
+  @override
+  String get reviewNotProvided => 'Not provided';
+
+  @override
+  String get reviewMissing => 'Missing';
+
+  @override
+  String reviewPhotoCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos',
+      one: '1 photo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewBillDated(String file, String date) {
+    return '$file, dated $date';
+  }
+
+  @override
+  String reviewPartnerId(String name, String idType) {
+    return '$name: $idType';
+  }
+
+  @override
+  String get reviewHomeBill => 'Home utility bill';
+
+  @override
+  String reviewOfficerIsOwner(String name) {
+    return '$name (owner)';
+  }
+
+  @override
+  String get submitConfirmTitle => 'Submit your application?';
+
+  @override
+  String get submitConfirmBody =>
+      'By submitting, you confirm the information and documents are accurate and belong to your business. You can\'t change them while the application is in review.';
+
+  @override
+  String get submitConfirmAction => 'Submit';
+
+  @override
+  String get submitting => 'Submitting…';
 
   @override
   String get fixErrorsMessage => 'Please fix the highlighted fields.';

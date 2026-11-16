@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/ui/welcome_screen.dart';
+import '../../features/onboarding/data/models/application_status.dart';
 import '../../features/onboarding/data/models/onboarding_step.dart';
 import '../../features/onboarding/review/ui/review_screen.dart';
 import '../../features/onboarding/status/ui/status_screen.dart';
@@ -33,7 +34,12 @@ GoRouter createAppRouter({String initialLocation = Routes.welcome}) {
       ),
       GoRoute(
         path: Routes.status,
-        builder: (context, state) => const StatusScreen(),
+        builder: (context, state) => StatusScreen(
+          // Passed right after a submit, so the screen needn't reload.
+          initial: state.extra is ApplicationSnapshot
+              ? state.extra! as ApplicationSnapshot
+              : null,
+        ),
       ),
     ],
   );

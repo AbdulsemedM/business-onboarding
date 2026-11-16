@@ -10,6 +10,7 @@ import 'core/theme/app_theme.dart';
 import 'features/documents/data/document_picker.dart';
 import 'features/documents/data/document_repository.dart';
 import 'features/documents/data/file_preparer.dart';
+import 'features/onboarding/data/application_repository.dart';
 import 'features/onboarding/logic/wizard_cubit.dart';
 import 'l10n/app_localizations.dart';
 
@@ -21,6 +22,7 @@ class App extends StatefulWidget {
     this.documentRepository,
     this.documentPicker,
     this.filePreparer,
+    this.applicationRepository,
   });
 
   final DraftStore draftStore;
@@ -31,6 +33,7 @@ class App extends StatefulWidget {
   final DocumentRepository? documentRepository;
   final DocumentPicker? documentPicker;
   final FilePreparer? filePreparer;
+  final ApplicationRepository? applicationRepository;
 
   @override
   State<App> createState() => _AppState();
@@ -77,6 +80,10 @@ class _AppState extends State<App> {
         RepositoryProvider<FilePreparer>(
           create: (_) => widget.filePreparer ?? FilePreparer(),
         ),
+        RepositoryProvider<ApplicationRepository>(
+          create: (_) =>
+              widget.applicationRepository ?? MockApplicationRepository(),
+        ),
       ],
       child: BlocProvider.value(
         value: _wizardCubit,
@@ -84,6 +91,9 @@ class _AppState extends State<App> {
           onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
           theme: AppTheme.light(),
           darkTheme: AppTheme.dark(),
+          // The brand look is white with blue and navy, so don't follow the
+          // phone's dark mode. Remove this line to support dark mode.
+          themeMode: ThemeMode.light,
           routerConfig: _router,
           localizationsDelegates: const [
             AppLocalizations.delegate,

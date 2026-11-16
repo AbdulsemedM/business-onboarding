@@ -4,7 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/router/routes.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../core/errors/failure_messages.dart';
+import '../data/application_repository.dart';
 import '../data/models/onboarding_step.dart';
+import '../review/logic/submit_cubit.dart';
 import '../logic/step_validation.dart';
 import '../logic/wizard_cubit.dart';
 import 'step_titles.dart';
@@ -69,42 +72,49 @@ class _WizardShellState extends State<WizardShell> {
 
     return RepositoryProvider.value(
       value: _validation,
-      child: PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, _) {
-          if (!didPop) _goBack();
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(_step.title(l10n)),
-            automaticallyImplyLeading: false,
-          ),
-          // In bottomNavigationBar (not the body) so snack bars appear above
-          // the buttons instead of covering them.
-          bottomNavigationBar: SafeArea(child: _buttons(l10n)),
-          body: SafeArea(
-            bottom: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: StepProgressIndicator(step: _step),
+      child: BlocProvider(
+        create: (context) =>
+            SubmitCubit(repository: context.read<ApplicationRepository>()),
+        child: BlocListener<SubmitCubit, SubmitState>(
+          listener: _onSubmitState,
+          child: PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, _) {
+              if (!didPop) _goBack();
+            },
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text(_step.title(l10n)),
+                automaticallyImplyLeading: false,
+              ),
+              // In bottomNavigationBar (not the body) so snack bars appear above
+              // the buttons instead of covering them.
+              bottomNavigationBar: SafeArea(child: _buttons(l10n)),
+              body: SafeArea(
+                bottom: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: StepProgressIndicator(step: _step),
+                    ),
+                    // The step content is a nested Navigator whose route barrier
+                    // uses BlockSemantics. Its own container stops that barrier
+                    // from hiding the progress header from screen readers.
+                    Expanded(
+                      child: Semantics(
+                        container: true,
+                        // Forms read their initial values from the draft, so
+                        // wait until it has been loaded from the device.
+                        child: isLoaded
+                            ? widget.child
+                            : const Center(child: CircularProgressIndicator()),
+                      ),
+                    ),
+                  ],
                 ),
-                // The step content is a nested Navigator whose route barrier
-                // uses BlockSemantics. Its own container stops that barrier
-                // from hiding the progress header from screen readers.
-                Expanded(
-                  child: Semantics(
-                    container: true,
-                    // Forms read their initial values from the draft, so
-                    // wait until it has been loaded from the device.
-                    child: isLoaded
-                        ? widget.child
-                        : const Center(child: CircularProgressIndicator()),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -112,22 +122,89 @@ class _WizardShellState extends State<WizardShell> {
     );
   }
 
-  Widget _buttons(AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedButton(onPressed: _goBack, child: Text(l10n.back)),
+  Future<void> _onSubmitState(BuildContext context, SubmitState state) async {
+    switch (state) {
+      case SubmitSucceeded(:final snapshot):
+        await context.read<WizardCubit>().markSubmitted();
+        if (context.mounted) context.go(Routes.status, extra: snapshot);
+      case SubmitFailed(:final failure):
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(failure.message(AppLocalizations.of(context))),
+            ),
+          );
+      case SubmitIdle() || SubmitInProgress():
+        break;
+    }
+  }
+
+  Future<void> _confirmAndSubmit(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final submit = context.read<SubmitCubit>();
+    final wizard = context.read<WizardCubit>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.send_rounded),
+        title: Text(l10n.submitConfirmTitle),
+        content: Text(l10n.submitConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: _step.isLast
-                // TODO(review): wire up submit in build step 7.
-                ? FilledButton(onPressed: null, child: Text(l10n.submit))
-                : FilledButton(onPressed: _goNext, child: Text(l10n.next)),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.submitConfirmAction),
           ),
         ],
+      ),
+    );
+    if (confirmed ?? false) await submit.submit(wizard.state.draft);
+  }
+
+  Widget _buttons(AppLocalizations l10n) {
+    final colors = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        border: Border(top: BorderSide(color: colors.outlineVariant)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: OutlinedButton(onPressed: _goBack, child: Text(l10n.back)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 3,
+              child: _step.isLast
+                  ? BlocBuilder<SubmitCubit, SubmitState>(
+                      builder: (context, state) => state is SubmitInProgress
+                          ? FilledButton.icon(
+                              onPressed: null,
+                              icon: const SizedBox.square(
+                                dimension: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                              label: Text(l10n.submitting),
+                            )
+                          : FilledButton(
+                              onPressed: () => _confirmAndSubmit(context),
+                              child: Text(l10n.submit),
+                            ),
+                    )
+                  : FilledButton(onPressed: _goNext, child: Text(l10n.next)),
+            ),
+          ],
+        ),
       ),
     );
   }

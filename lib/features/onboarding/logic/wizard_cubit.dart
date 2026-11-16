@@ -57,6 +57,12 @@ class WizardCubit extends Cubit<WizardState> {
     return _save();
   }
 
+  /// Records a successful submit and saves straight away.
+  Future<void> markSubmitted() async {
+    emit(state.copyWith(draft: state.draft.copyWith(submitted: true)));
+    await saveNow();
+  }
+
   /// Deletes the local draft and starts over.
   Future<void> discardDraft() async {
     _autosave.cancel();

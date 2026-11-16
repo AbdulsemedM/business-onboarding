@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../../shared/widgets/group_card.dart';
 import '../../../../../shared/widgets/name_form_field.dart';
 import '../../../../../shared/widgets/radio_group_form_field.dart';
 import '../../../../documents/ui/document_form_field.dart';
@@ -64,116 +65,118 @@ class PartnerDocumentsSection extends StatelessWidget {
     final theme = Theme.of(context);
     final id = partner.id;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: Semantics(
-                header: true,
-                child: Text(
-                  number == 1
-                      ? l10n.step2OwnerHeading
-                      : l10n.step2PartnerHeading(number),
-                  style: theme.textTheme.titleSmall,
+    return GroupCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Semantics(
+                  header: true,
+                  child: Text(
+                    number == 1
+                        ? l10n.step2OwnerHeading
+                        : l10n.step2PartnerHeading(number),
+                    style: theme.textTheme.titleSmall,
+                  ),
                 ),
               ),
-            ),
-            if (onRemove != null)
-              IconButton(
-                icon: const Icon(Icons.delete_outline),
-                tooltip: l10n.step2RemovePartner(number),
-                onPressed: () => _confirmRemove(context),
-              ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        if (ownerName case final name?)
-          Text(l10n.step2OwnerName(name))
-        else ...[
-          NameFormField(
-            name: Step2Fields.partnerFirstName(id),
-            label: l10n.step2PartnerFirstName,
-            initialValue: partner.firstName,
-            onChanged: (name) => onChanged((p) => p.copyWith(firstName: name)),
+              if (onRemove != null)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: l10n.step2RemovePartner(number),
+                  onPressed: () => _confirmRemove(context),
+                ),
+            ],
           ),
+          const SizedBox(height: 8),
+          if (ownerName case final name?)
+            Text(l10n.step2OwnerName(name))
+          else ...[
+            NameFormField(
+              name: Step2Fields.partnerFirstName(id),
+              label: l10n.step2PartnerFirstName,
+              initialValue: partner.firstName,
+              onChanged: (name) =>
+                  onChanged((p) => p.copyWith(firstName: name)),
+            ),
+            const SizedBox(height: 16),
+            NameFormField(
+              name: Step2Fields.partnerLastName(id),
+              label: l10n.step2PartnerLastName,
+              initialValue: partner.lastName,
+              onChanged: (name) => onChanged((p) => p.copyWith(lastName: name)),
+            ),
+          ],
           const SizedBox(height: 16),
-          NameFormField(
-            name: Step2Fields.partnerLastName(id),
-            label: l10n.step2PartnerLastName,
-            initialValue: partner.lastName,
-            onChanged: (name) => onChanged((p) => p.copyWith(lastName: name)),
+          Text(l10n.step2IdTypeLabel, style: theme.textTheme.labelLarge),
+          RadioGroupFormField<PersonalIdType>(
+            key: ValueKey(Step2Fields.idType(id)),
+            name: Step2Fields.idType(id),
+            initialValue: partner.idType,
+            options: [
+              RadioOption(
+                value: PersonalIdType.governmentId,
+                title: l10n.idTypeGovernmentId,
+              ),
+              RadioOption(
+                value: PersonalIdType.driversLicense,
+                title: l10n.idTypeDriversLicense,
+              ),
+              RadioOption(
+                value: PersonalIdType.passport,
+                title: l10n.idTypePassport,
+                subtitle: l10n.idTypePassportNote,
+              ),
+            ],
+            validator: FormBuilderValidators.required(
+              errorText: l10n.errorRequired,
+            ),
+            onChanged: (type) => onChanged((p) => p.copyWith(idType: type)),
           ),
+          // The backend needs the ID type for the upload, so it is picked
+          // first. Changing it keeps the file.
+          // TODO(api): re-upload (or replace) when the type changes after upload.
+          if (partner.idType case final idType?)
+            DocumentFormField(
+              name: Step2Fields.idDocument(id),
+              title: l10n.step2IdCard(number),
+              documentType: idType.apiCode,
+              initialDocument: partner.idDocument,
+              requiredErrorText: l10n.docErrorRequired,
+              onChanged: (doc) => onChanged((p) => p.copyWith(idDocument: doc)),
+            ),
+          // A passport always needs the bill, so the question is skipped.
+          if (partner.idType != PersonalIdType.passport)
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.step2PoBoxToggle),
+              subtitle: Text(l10n.step2PoBoxNote),
+              value: partner.idShowsPoBox,
+              onChanged: (value) =>
+                  onChanged((p) => p.copyWith(idShowsPoBox: value)),
+            ),
+          if (partner.homeUtilityBillRequired)
+            DocumentFormField(
+              name: Step2Fields.homeBill(id),
+              title: l10n.step2HomeBillCard(number),
+              description: l10n.step2HomeBillHelp,
+              documentType: DocumentTypes.homeUtilityBill,
+              initialDocument: partner.homeUtilityBill,
+              requiredErrorText: l10n.docErrorRequired,
+              onChanged: (doc) =>
+                  onChanged((p) => p.copyWith(homeUtilityBill: doc)),
+              footer: BillDateField(
+                name: Step2Fields.homeBillDate(id),
+                window: BillWindow.last60Days,
+                initialValue: partner.homeUtilityBillDate,
+                onChanged: (date) =>
+                    onChanged((p) => p.copyWith(homeUtilityBillDate: date)),
+              ),
+            ),
         ],
-        const SizedBox(height: 16),
-        Text(l10n.step2IdTypeLabel, style: theme.textTheme.labelLarge),
-        RadioGroupFormField<PersonalIdType>(
-          key: ValueKey(Step2Fields.idType(id)),
-          name: Step2Fields.idType(id),
-          initialValue: partner.idType,
-          options: [
-            RadioOption(
-              value: PersonalIdType.governmentId,
-              title: l10n.idTypeGovernmentId,
-            ),
-            RadioOption(
-              value: PersonalIdType.driversLicense,
-              title: l10n.idTypeDriversLicense,
-            ),
-            RadioOption(
-              value: PersonalIdType.passport,
-              title: l10n.idTypePassport,
-              subtitle: l10n.idTypePassportNote,
-            ),
-          ],
-          validator: FormBuilderValidators.required(
-            errorText: l10n.errorRequired,
-          ),
-          onChanged: (type) => onChanged((p) => p.copyWith(idType: type)),
-        ),
-        // The backend needs the ID type for the upload, so it is picked
-        // first. Changing it keeps the file.
-        // TODO(api): re-upload (or replace) when the type changes after upload.
-        if (partner.idType case final idType?)
-          DocumentFormField(
-            name: Step2Fields.idDocument(id),
-            title: l10n.step2IdCard(number),
-            documentType: idType.apiCode,
-            initialDocument: partner.idDocument,
-            requiredErrorText: l10n.docErrorRequired,
-            onChanged: (doc) => onChanged((p) => p.copyWith(idDocument: doc)),
-          ),
-        // A passport always needs the bill, so the question is skipped.
-        if (partner.idType != PersonalIdType.passport)
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(l10n.step2PoBoxToggle),
-            subtitle: Text(l10n.step2PoBoxNote),
-            value: partner.idShowsPoBox,
-            onChanged: (value) =>
-                onChanged((p) => p.copyWith(idShowsPoBox: value)),
-          ),
-        if (partner.homeUtilityBillRequired)
-          DocumentFormField(
-            name: Step2Fields.homeBill(id),
-            title: l10n.step2HomeBillCard(number),
-            description: l10n.step2HomeBillHelp,
-            documentType: DocumentTypes.homeUtilityBill,
-            initialDocument: partner.homeUtilityBill,
-            requiredErrorText: l10n.docErrorRequired,
-            onChanged: (doc) =>
-                onChanged((p) => p.copyWith(homeUtilityBill: doc)),
-            footer: BillDateField(
-              name: Step2Fields.homeBillDate(id),
-              window: BillWindow.last60Days,
-              initialValue: partner.homeUtilityBillDate,
-              onChanged: (date) =>
-                  onChanged((p) => p.copyWith(homeUtilityBillDate: date)),
-            ),
-          ),
-      ],
+      ),
     );
   }
 }

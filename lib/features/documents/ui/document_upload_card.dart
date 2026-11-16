@@ -124,28 +124,36 @@ class _CardView extends StatelessWidget {
         final status = _Status.of(state);
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8),
-          shape: errorText == null
+          // Error: red outline. Uploaded: blue outline. Otherwise the
+          // theme's soft border.
+          shape: errorText == null && status != _Status.uploaded
               ? null
               : RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: theme.colorScheme.error),
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(
+                    color: errorText != null
+                        ? theme.colorScheme.error
+                        : theme.colorScheme.primary,
+                    width: 1.5,
+                  ),
                 ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                // Wraps (chip under the title) at large text sizes.
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    Expanded(
-                      child: Semantics(
-                        container: true,
-                        header: true,
-                        child: Text(title, style: theme.textTheme.titleMedium),
-                      ),
+                    Semantics(
+                      container: true,
+                      header: true,
+                      child: Text(title, style: theme.textTheme.titleMedium),
                     ),
-                    const SizedBox(width: 8),
                     _StatusChip(
                       status: status,
                       label: status.label(l10n),
@@ -320,18 +328,26 @@ class _StatusChip extends StatelessWidget {
       liveRegion: true,
       label: semanticsLabel,
       excludeSemantics: true,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(status.icon, size: 18, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.labelMedium?.copyWith(color: color),
-          ),
-        ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(status.icon, size: 16, color: color),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

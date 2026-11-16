@@ -112,6 +112,42 @@ abstract class AppLocalizations {
   /// **'Tell us about your business, upload a few documents, and we\'ll review your application. Your progress is saved on this device so you can finish later.'**
   String get welcomeBody;
 
+  /// No description provided for @welcomeStepsHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get welcomeStepsHeading;
+
+  /// No description provided for @welcomeStep1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Your details, address and tax information.'**
+  String get welcomeStep1Body;
+
+  /// No description provided for @welcomeStep2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'IDs, registration, license and photos.'**
+  String get welcomeStep2Body;
+
+  /// No description provided for @welcomeStep3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Who processes transactions and your compliance officer.'**
+  String get welcomeStep3Body;
+
+  /// No description provided for @welcomeStep4Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Check everything, then submit for review.'**
+  String get welcomeStep4Body;
+
+  /// No description provided for @welcomeSavedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your progress is saved on this device.'**
+  String get welcomeSavedNote;
+
   /// No description provided for @startApplication.
   ///
   /// In en, this message translates to:
@@ -195,6 +231,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Application status'**
   String get statusTitle;
+
+  /// No description provided for @statusRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get statusRefresh;
+
+  /// No description provided for @statusAppNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Application {number}'**
+  String statusAppNumber(String number);
+
+  /// No description provided for @statusSubmittedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted {date}'**
+  String statusSubmittedOn(String date);
+
+  /// No description provided for @statusLabelDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Not submitted'**
+  String get statusLabelDraft;
+
+  /// No description provided for @statusLabelInReview.
+  ///
+  /// In en, this message translates to:
+  /// **'In review'**
+  String get statusLabelInReview;
+
+  /// No description provided for @statusLabelActionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Action needed'**
+  String get statusLabelActionRequired;
+
+  /// No description provided for @statusLabelApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get statusLabelApproved;
+
+  /// No description provided for @statusLabelRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not approved'**
+  String get statusLabelRejected;
+
+  /// No description provided for @statusHeadlineDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Not submitted yet'**
+  String get statusHeadlineDraft;
+
+  /// No description provided for @statusBodyDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish your application and submit it for review.'**
+  String get statusBodyDraft;
+
+  /// No description provided for @statusHeadlineInReview.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'re reviewing your application'**
+  String get statusHeadlineInReview;
+
+  /// No description provided for @statusBodyInReview.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll let you know when there\'s an update, or if we need anything else.'**
+  String get statusBodyInReview;
+
+  /// No description provided for @statusHeadlineActionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A few things need your attention'**
+  String get statusHeadlineActionRequired;
+
+  /// No description provided for @statusBodyActionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Our reviewer asked for the changes below. Fix them, then resubmit.'**
+  String get statusBodyActionRequired;
+
+  /// No description provided for @statusHeadlineApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re approved'**
+  String get statusHeadlineApproved;
+
+  /// No description provided for @statusBodyApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to FastPay. We\'ll be in touch with your next steps.'**
+  String get statusBodyApproved;
+
+  /// No description provided for @statusHeadlineRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t approve this application'**
+  String get statusHeadlineRejected;
+
+  /// No description provided for @statusBodyRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact FastPay support if you have questions about this decision.'**
+  String get statusBodyRejected;
+
+  /// No description provided for @statusDocsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents to upload again'**
+  String get statusDocsSection;
+
+  /// No description provided for @statusDocsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a new file for each document. Only these need to change.'**
+  String get statusDocsHint;
+
+  /// No description provided for @statusFieldsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Details to change'**
+  String get statusFieldsSection;
+
+  /// No description provided for @statusFieldsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Change these details, then submit again from the Review step.'**
+  String get statusFieldsHint;
+
+  /// No description provided for @statusFixIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix in {step}'**
+  String statusFixIn(String step);
+
+  /// No description provided for @statusResubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Resubmit for review'**
+  String get statusResubmit;
+
+  /// No description provided for @statusResubmitBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a new file for every document above to resubmit.'**
+  String get statusResubmitBlocked;
+
+  /// No description provided for @statusContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue application'**
+  String get statusContinue;
+
+  /// No description provided for @statusRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get statusRetry;
+
+  /// No description provided for @statusViewStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'View application status'**
+  String get statusViewStatus;
+
+  /// No description provided for @reviewIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your answers before you submit. Tap Edit to change a section.'**
+  String get reviewIntro;
+
+  /// No description provided for @reviewEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get reviewEdit;
+
+  /// No description provided for @reviewEditSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {section}'**
+  String reviewEditSection(String section);
+
+  /// No description provided for @reviewOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get reviewOwner;
+
+  /// No description provided for @reviewHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get reviewHours;
+
+  /// No description provided for @reviewHoursValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}, {opens} to {closes}'**
+  String reviewHoursValue(String days, String opens, String closes);
+
+  /// No description provided for @reviewAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Business address'**
+  String get reviewAddress;
+
+  /// No description provided for @reviewSubtenant.
+  ///
+  /// In en, this message translates to:
+  /// **'Subleases this location'**
+  String get reviewSubtenant;
+
+  /// No description provided for @reviewTimeAtLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Time at location'**
+  String get reviewTimeAtLocation;
+
+  /// No description provided for @reviewTimeAtResidence.
+  ///
+  /// In en, this message translates to:
+  /// **'Time at residential home'**
+  String get reviewTimeAtResidence;
+
+  /// No description provided for @reviewYearsMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'{years, plural, =1{1 year} other{{years} years}}, {months, plural, =1{1 month} other{{months} months}}'**
+  String reviewYearsMonths(int years, int months);
+
+  /// No description provided for @reviewYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get reviewYes;
+
+  /// No description provided for @reviewNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get reviewNo;
+
+  /// No description provided for @reviewNotProvided.
+  ///
+  /// In en, this message translates to:
+  /// **'Not provided'**
+  String get reviewNotProvided;
+
+  /// No description provided for @reviewMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing'**
+  String get reviewMissing;
+
+  /// No description provided for @reviewPhotoCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo} other{{count} photos}}'**
+  String reviewPhotoCount(int count);
+
+  /// No description provided for @reviewBillDated.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, dated {date}'**
+  String reviewBillDated(String file, String date);
+
+  /// No description provided for @reviewPartnerId.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {idType}'**
+  String reviewPartnerId(String name, String idType);
+
+  /// No description provided for @reviewHomeBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Home utility bill'**
+  String get reviewHomeBill;
+
+  /// No description provided for @reviewOfficerIsOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (owner)'**
+  String reviewOfficerIsOwner(String name);
+
+  /// No description provided for @submitConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit your application?'**
+  String get submitConfirmTitle;
+
+  /// No description provided for @submitConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'By submitting, you confirm the information and documents are accurate and belong to your business. You can\'t change them while the application is in review.'**
+  String get submitConfirmBody;
+
+  /// No description provided for @submitConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submitConfirmAction;
+
+  /// No description provided for @submitting.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting…'**
+  String get submitting;
 
   /// No description provided for @fixErrorsMessage.
   ///

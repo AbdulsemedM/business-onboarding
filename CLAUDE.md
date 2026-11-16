@@ -40,6 +40,9 @@ Do not invent endpoints: read `docs/api/` (or ask me) before writing any API cod
 - Step 2: partners are a list with local ids (first partner can't be removed). Bill dates are entered by the user and checked by `BillWindow` (60 days / 3 calendar months). Hidden conditional data (home bill, sublease agreement) stays in the draft; leave it out of the submission.
 - Step 2 extras agreed: each partner has a full legal name; the DBA toggle asks for the trade name; the optional 4th photo is untagged ("Additional photo"); changing the license type keeps the uploaded file. (Being re-aligned with the backend: names are first/last, 4th photo is `PHOTO_INTERIOR_ADDITIONAL`, DBA has its own `DBA_DOCUMENTATION` upload.)
 - The sublease agreement card in Step 2 follows Step 1's `subtenant` toggle.
+- Brand: primary `#0155EB`, secondary `#24397C`, white surfaces (`lib/core/theme/app_theme.dart`). The app is locked to the light theme (`themeMode: ThemeMode.light`); dark mode is defined but off.
+- Submit/status go through `ApplicationRepository` (mock until wired). After a submit the draft's `submitted` flag sends Welcome to the status screen. Field corrections are fixed in the wizard and resubmitted from Review; document corrections are re-uploaded on the status screen.
+- Secrets are git-ignored (`.env*`, signing keys, Firebase configs, Postman environments). Never commit them.
 - Partner 1 is the owner. Step 3 "Same as owner" (default on) refers to them. At least one transaction processor is required.
 
 ## Commands
@@ -149,7 +152,7 @@ Repositories stay behind interfaces. The mock and real implementations are swapp
 4. ~~Reusable document upload card + file/camera picking + compression~~
 5. ~~Step 2 screens with all conditional logic (passport/P.O. Box, DBA, sublease)~~
 6. ~~Step 3 dynamic lists~~
-7. Review and submit
-8. Status screen and re-upload flow
+7. ~~Review and submit~~
+8. ~~Status screen and re-upload flow~~
 9. Wire real API, error handling, offline behavior
 10. Tests (unit for validators and blocs, widget tests for each step) and polish

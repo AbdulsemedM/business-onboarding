@@ -19,6 +19,10 @@ abstract class OnboardingDraft with _$OnboardingDraft {
     @Default(Step1BusinessData()) Step1BusinessData business,
     @Default(Step2DocumentsData()) Step2DocumentsData documents,
     @Default(Step3ComplianceData()) Step3ComplianceData compliance,
+
+    /// Sent for review at least once. The app then opens on the status
+    /// screen. The server's status is the source of truth; this only routes.
+    @Default(false) bool submitted,
   }) = _OnboardingDraft;
 
   factory OnboardingDraft.fromJson(Map<String, dynamic> json) =>

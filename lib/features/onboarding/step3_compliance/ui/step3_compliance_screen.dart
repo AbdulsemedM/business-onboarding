@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../../shared/widgets/group_card.dart';
 import '../../../../shared/widgets/name_form_field.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../logic/step_validation.dart';
@@ -97,56 +98,57 @@ class _Step3ComplianceScreenState extends State<Step3ComplianceScreen> {
       Text(l10n.step3ProcessorsHelp),
       const SizedBox(height: 8),
       for (final (index, processor) in data.processors.indexed)
-        Column(
+        GroupCard(
           key: ValueKey(processor.id),
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    child: Text(
-                      l10n.step3ProcessorHeading(index + 1),
-                      style: Theme.of(context).textTheme.titleSmall,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        l10n.step3ProcessorHeading(index + 1),
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
                     ),
                   ),
-                ),
-                if (canRemove)
-                  IconButton(
-                    icon: const Icon(Icons.remove_circle_outline),
-                    tooltip: l10n.step3RemoveProcessor(index + 1),
-                    onPressed: () =>
-                        _update((d) => d.withProcessorRemoved(processor.id)),
+                  if (canRemove)
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle_outline),
+                      tooltip: l10n.step3RemoveProcessor(index + 1),
+                      onPressed: () =>
+                          _update((d) => d.withProcessorRemoved(processor.id)),
+                    ),
+                ],
+              ),
+              NameFormField(
+                name: Step3Fields.processorFirstName(processor.id),
+                label: l10n.firstName,
+                initialValue: processor.firstName,
+                autofocus: processor.id == _addedProcessorId,
+                onChanged: (name) => _update(
+                  (d) => d.withProcessorUpdated(
+                    processor.id,
+                    (p) => p.copyWith(firstName: name),
                   ),
-              ],
-            ),
-            NameFormField(
-              name: Step3Fields.processorFirstName(processor.id),
-              label: l10n.firstName,
-              initialValue: processor.firstName,
-              autofocus: processor.id == _addedProcessorId,
-              onChanged: (name) => _update(
-                (d) => d.withProcessorUpdated(
-                  processor.id,
-                  (p) => p.copyWith(firstName: name),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            NameFormField(
-              name: Step3Fields.processorLastName(processor.id),
-              label: l10n.lastName,
-              initialValue: processor.lastName,
-              onChanged: (name) => _update(
-                (d) => d.withProcessorUpdated(
-                  processor.id,
-                  (p) => p.copyWith(lastName: name),
+              const SizedBox(height: 16),
+              NameFormField(
+                name: Step3Fields.processorLastName(processor.id),
+                label: l10n.lastName,
+                initialValue: processor.lastName,
+                onChanged: (name) => _update(
+                  (d) => d.withProcessorUpdated(
+                    processor.id,
+                    (p) => p.copyWith(lastName: name),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       const SizedBox(height: 12),
       Align(
