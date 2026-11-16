@@ -32,7 +32,8 @@ class DocumentUploadCard extends StatelessWidget {
     this.rejectionReason,
     this.onChanged,
     this.errorText,
-    this.footer,
+    this.details,
+    this.uploadOptions,
   });
 
   final String title;
@@ -60,8 +61,12 @@ class DocumentUploadCard extends StatelessWidget {
   /// document". Outlines the card in the error color.
   final String? errorText;
 
-  /// Extra fields that belong to this document, e.g. the bill date.
-  final Widget? footer;
+  /// Extra fields that belong to this document, e.g. the bill date. Shown
+  /// above the upload actions because the upload may need them first.
+  final Widget? details;
+
+  /// Extra upload details (owner, bill date), read at upload time.
+  final Future<UploadOptions> Function()? uploadOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +79,7 @@ class DocumentUploadCard extends StatelessWidget {
         initialDocument: initialDocument,
         rejectionReason: rejectionReason,
         onChanged: onChanged,
+        resolveOptions: uploadOptions,
       ),
       child: _CardView(
         title: title,
@@ -81,7 +87,7 @@ class DocumentUploadCard extends StatelessWidget {
         sources: sources,
         cameraHint: cameraHint,
         errorText: errorText,
-        footer: footer,
+        details: details,
       ),
     );
   }
@@ -94,7 +100,7 @@ class _CardView extends StatelessWidget {
     required this.sources,
     required this.cameraHint,
     required this.errorText,
-    required this.footer,
+    required this.details,
   });
 
   final String title;
@@ -102,7 +108,7 @@ class _CardView extends StatelessWidget {
   final List<DocumentSource> sources;
   final String? cameraHint;
   final String? errorText;
-  final Widget? footer;
+  final Widget? details;
 
   Future<void> _add(BuildContext context) async {
     final cubit = context.read<DocumentUploadCubit>();
@@ -168,13 +174,13 @@ class _CardView extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(description!, style: theme.textTheme.bodyMedium),
                 ],
+                if (details != null) ...[const SizedBox(height: 16), details!],
                 const SizedBox(height: 12),
                 ..._body(context, state, l10n),
                 if (errorText != null) ...[
                   const SizedBox(height: 12),
                   _ErrorText(errorText!),
                 ],
-                if (footer != null) ...[const SizedBox(height: 16), footer!],
               ],
             ),
           ),
@@ -263,6 +269,7 @@ class _CardView extends StatelessWidget {
         DocumentUnsupportedType() => l10n.docErrorUnsupported,
         DocumentUnreadable() => l10n.docErrorUnreadable,
         DocumentPermissionDenied() => l10n.docErrorPermission,
+        DocumentNeedsInfo(:final message) => message,
         DocumentUploadFailed(:final failure) => failure.message(l10n),
       };
 }

@@ -112,6 +112,186 @@ abstract class AppLocalizations {
   /// **'Tell us about your business, upload a few documents, and we\'ll review your application. Your progress is saved on this device so you can finish later.'**
   String get welcomeBody;
 
+  /// No description provided for @authSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignInTitle;
+
+  /// No description provided for @authSignInBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to continue your merchant application.'**
+  String get authSignInBody;
+
+  /// No description provided for @authEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get authEmail;
+
+  /// No description provided for @authPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPassword;
+
+  /// No description provided for @authShowPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get authShowPassword;
+
+  /// No description provided for @authHidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get authHidePassword;
+
+  /// No description provided for @authSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignIn;
+
+  /// No description provided for @authNoAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'New to FastPay?'**
+  String get authNoAccount;
+
+  /// No description provided for @authCreateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get authCreateAccount;
+
+  /// No description provided for @authRegisterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account'**
+  String get authRegisterTitle;
+
+  /// No description provided for @authRegisterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll use these details to contact you about your application.'**
+  String get authRegisterBody;
+
+  /// No description provided for @authFirstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get authFirstName;
+
+  /// No description provided for @authLastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get authLastName;
+
+  /// No description provided for @authPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile phone'**
+  String get authPhone;
+
+  /// No description provided for @authBusinessName.
+  ///
+  /// In en, this message translates to:
+  /// **'Business name'**
+  String get authBusinessName;
+
+  /// No description provided for @authConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get authConfirmPassword;
+
+  /// No description provided for @authPasswordRule.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 8 characters, with upper and lower case letters, a number and a symbol.'**
+  String get authPasswordRule;
+
+  /// No description provided for @authRegister.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get authRegister;
+
+  /// No description provided for @authHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get authHaveAccount;
+
+  /// No description provided for @authInvalidLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'That email and password don\'t match. Try again.'**
+  String get authInvalidLogin;
+
+  /// No description provided for @authSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session expired. Please sign in again.'**
+  String get authSessionExpired;
+
+  /// No description provided for @authBusinessNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name your business'**
+  String get authBusinessNameTitle;
+
+  /// No description provided for @authBusinessNameBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account doesn\'t have an application yet. Enter your business name to start one.'**
+  String get authBusinessNameBody;
+
+  /// No description provided for @authContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get authContinue;
+
+  /// No description provided for @authSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get authSignOut;
+
+  /// No description provided for @authSignOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out?'**
+  String get authSignOutTitle;
+
+  /// No description provided for @authSignOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answers on this device will be removed. Anything already sent to FastPay stays saved.'**
+  String get authSignOutBody;
+
+  /// No description provided for @errorEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get errorEmail;
+
+  /// No description provided for @errorPasswordRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 8 characters with upper and lower case letters, a number and a symbol'**
+  String get errorPasswordRule;
+
+  /// No description provided for @errorPasswordMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords don\'t match'**
+  String get errorPasswordMatch;
+
   /// No description provided for @welcomeStepsHeading.
   ///
   /// In en, this message translates to:
@@ -543,6 +723,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Submitting…'**
   String get submitting;
+
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get saving;
+
+  /// No description provided for @stillMissingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A few things are still needed'**
+  String get stillMissingTitle;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
 
   /// No description provided for @fixErrorsMessage.
   ///
@@ -1005,6 +1203,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add document'**
   String get docAdd;
+
+  /// No description provided for @docNeedsBillDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the bill date below first, then tap Retry.'**
+  String get docNeedsBillDate;
+
+  /// No description provided for @docNeedsPartnerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter this partner\'s first and last name first, then tap Retry.'**
+  String get docNeedsPartnerName;
+
+  /// No description provided for @partnerRemoveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The partner couldn\'t be removed. {reason}'**
+  String partnerRemoveFailed(String reason);
 
   /// No description provided for @docReplace.
   ///

@@ -19,6 +19,103 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tell us about your business, upload a few documents, and we\'ll review your application. Your progress is saved on this device so you can finish later.';
 
   @override
+  String get authSignInTitle => 'Sign in';
+
+  @override
+  String get authSignInBody => 'Sign in to continue your merchant application.';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authPassword => 'Password';
+
+  @override
+  String get authShowPassword => 'Show password';
+
+  @override
+  String get authHidePassword => 'Hide password';
+
+  @override
+  String get authSignIn => 'Sign in';
+
+  @override
+  String get authNoAccount => 'New to FastPay?';
+
+  @override
+  String get authCreateAccount => 'Create an account';
+
+  @override
+  String get authRegisterTitle => 'Create your account';
+
+  @override
+  String get authRegisterBody =>
+      'We\'ll use these details to contact you about your application.';
+
+  @override
+  String get authFirstName => 'First name';
+
+  @override
+  String get authLastName => 'Last name';
+
+  @override
+  String get authPhone => 'Mobile phone';
+
+  @override
+  String get authBusinessName => 'Business name';
+
+  @override
+  String get authConfirmPassword => 'Confirm password';
+
+  @override
+  String get authPasswordRule =>
+      'At least 8 characters, with upper and lower case letters, a number and a symbol.';
+
+  @override
+  String get authRegister => 'Create account';
+
+  @override
+  String get authHaveAccount => 'Already have an account?';
+
+  @override
+  String get authInvalidLogin =>
+      'That email and password don\'t match. Try again.';
+
+  @override
+  String get authSessionExpired =>
+      'Your session expired. Please sign in again.';
+
+  @override
+  String get authBusinessNameTitle => 'Name your business';
+
+  @override
+  String get authBusinessNameBody =>
+      'Your account doesn\'t have an application yet. Enter your business name to start one.';
+
+  @override
+  String get authContinue => 'Continue';
+
+  @override
+  String get authSignOut => 'Sign out';
+
+  @override
+  String get authSignOutTitle => 'Sign out?';
+
+  @override
+  String get authSignOutBody =>
+      'Your answers on this device will be removed. Anything already sent to FastPay stays saved.';
+
+  @override
+  String get errorEmail => 'Enter a valid email address';
+
+  @override
+  String get errorPasswordRule =>
+      'Use at least 8 characters with upper and lower case letters, a number and a symbol';
+
+  @override
+  String get errorPasswordMatch => 'Passwords don\'t match';
+
+  @override
   String get welcomeStepsHeading => 'How it works';
 
   @override
@@ -290,6 +387,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get submitting => 'Submitting…';
 
   @override
+  String get saving => 'Saving…';
+
+  @override
+  String get stillMissingTitle => 'A few things are still needed';
+
+  @override
+  String get ok => 'OK';
+
+  @override
   String get fixErrorsMessage => 'Please fix the highlighted fields.';
 
   @override
@@ -543,6 +649,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get docAdd => 'Add document';
+
+  @override
+  String get docNeedsBillDate =>
+      'Enter the bill date below first, then tap Retry.';
+
+  @override
+  String get docNeedsPartnerName =>
+      'Enter this partner\'s first and last name first, then tap Retry.';
+
+  @override
+  String partnerRemoveFailed(String reason) {
+    return 'The partner couldn\'t be removed. $reason';
+  }
 
   @override
   String get docReplace => 'Replace';

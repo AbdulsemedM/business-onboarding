@@ -23,6 +23,14 @@ abstract class OnboardingDraft with _$OnboardingDraft {
     /// Sent for review at least once. The app then opens on the status
     /// screen. The server's status is the source of truth; this only routes.
     @Default(false) bool submitted,
+
+    /// Server id of the Step 1 owner (backend `ownerId`), set when Step 1 is
+    /// saved. Needed for owner-scoped uploads and "Same as owner".
+    String? primaryOwnerId,
+
+    /// The server application these answers belong to. A draft for another
+    /// application (another account) is discarded on sign-in.
+    String? applicationId,
   }) = _OnboardingDraft;
 
   factory OnboardingDraft.fromJson(Map<String, dynamic> json) =>

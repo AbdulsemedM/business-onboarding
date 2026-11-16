@@ -30,6 +30,9 @@ class _Step3ComplianceScreenState extends State<Step3ComplianceScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   late final StepValidation _validation = context.read<StepValidation>();
 
+  /// Set by the first Next on this step.
+  bool _showErrors = false;
+
   /// The processor just added with the button, so its field gets focus.
   String? _addedProcessorId;
 
@@ -45,9 +48,13 @@ class _Step3ComplianceScreenState extends State<Step3ComplianceScreen> {
     super.dispose();
   }
 
-  bool _validate() =>
-      _formKey.currentState?.validate(autoScrollWhenFocusOnInvalid: true) ??
-      false;
+  bool _validate() {
+    if (!_showErrors) setState(() => _showErrors = true);
+    return _formKey.currentState?.validate(
+          autoScrollWhenFocusOnInvalid: true,
+        ) ??
+        false;
+  }
 
   void _update(Step3ComplianceData Function(Step3ComplianceData data) change) {
     context.read<WizardCubit>().updateDraft(
@@ -67,7 +74,11 @@ class _Step3ComplianceScreenState extends State<Step3ComplianceScreen> {
 
     return FormBuilder(
       key: _formKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      // Quiet while the user fills the form in; after the first Next, errors
+      // update as they type.
+      autovalidateMode: _showErrors
+          ? AutovalidateMode.onUserInteraction
+          : AutovalidateMode.disabled,
       child:
           BlocSelector<WizardCubit, WizardState, (Step3ComplianceData, String)>(
             selector: (state) =>
@@ -123,6 +134,8 @@ class _Step3ComplianceScreenState extends State<Step3ComplianceScreen> {
                     ),
                 ],
               ),
+              // Room for the field's floating label.
+              const SizedBox(height: 12),
               NameFormField(
                 name: Step3Fields.processorFirstName(processor.id),
                 label: l10n.firstName,

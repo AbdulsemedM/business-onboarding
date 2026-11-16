@@ -131,13 +131,13 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  network,TResult Function()?  timeout,TResult Function()?  unauthorized,TResult Function()?  validation,TResult Function( int? statusCode)?  server,TResult Function()?  unknown,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  network,TResult Function()?  timeout,TResult Function()?  unauthorized,TResult Function( List<String> messages)?  validation,TResult Function( int? statusCode)?  server,TResult Function()?  unknown,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network();case TimeoutFailure() when timeout != null:
 return timeout();case UnauthorizedFailure() when unauthorized != null:
 return unauthorized();case ValidationFailure() when validation != null:
-return validation();case ServerFailure() when server != null:
+return validation(_that.messages);case ServerFailure() when server != null:
 return server(_that.statusCode);case UnknownFailure() when unknown != null:
 return unknown();case _:
   return orElse();
@@ -157,13 +157,13 @@ return unknown();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  network,required TResult Function()  timeout,required TResult Function()  unauthorized,required TResult Function()  validation,required TResult Function( int? statusCode)  server,required TResult Function()  unknown,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  network,required TResult Function()  timeout,required TResult Function()  unauthorized,required TResult Function( List<String> messages)  validation,required TResult Function( int? statusCode)  server,required TResult Function()  unknown,}) {final _that = this;
 switch (_that) {
 case NetworkFailure():
 return network();case TimeoutFailure():
 return timeout();case UnauthorizedFailure():
 return unauthorized();case ValidationFailure():
-return validation();case ServerFailure():
+return validation(_that.messages);case ServerFailure():
 return server(_that.statusCode);case UnknownFailure():
 return unknown();}
 }
@@ -179,13 +179,13 @@ return unknown();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  network,TResult? Function()?  timeout,TResult? Function()?  unauthorized,TResult? Function()?  validation,TResult? Function( int? statusCode)?  server,TResult? Function()?  unknown,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  network,TResult? Function()?  timeout,TResult? Function()?  unauthorized,TResult? Function( List<String> messages)?  validation,TResult? Function( int? statusCode)?  server,TResult? Function()?  unknown,}) {final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network();case TimeoutFailure() when timeout != null:
 return timeout();case UnauthorizedFailure() when unauthorized != null:
 return unauthorized();case ValidationFailure() when validation != null:
-return validation();case ServerFailure() when server != null:
+return validation(_that.messages);case ServerFailure() when server != null:
 return server(_that.statusCode);case UnknownFailure() when unknown != null:
 return unknown();case _:
   return null;
@@ -295,33 +295,73 @@ String toString() {
 
 
 class ValidationFailure implements AppFailure {
-  const ValidationFailure();
+  const ValidationFailure({final  List<String> messages = const <String>[]}): _messages = messages;
   
 
+ final  List<String> _messages;
+@JsonKey() List<String> get messages {
+  if (_messages is EqualUnmodifiableListView) return _messages;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_messages);
+}
 
 
+/// Create a copy of AppFailure
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ValidationFailureCopyWith<ValidationFailure> get copyWith => _$ValidationFailureCopyWithImpl<ValidationFailure>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ValidationFailure);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ValidationFailure&&const DeepCollectionEquality().equals(other._messages, _messages));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_messages));
 
 @override
 String toString() {
-  return 'AppFailure.validation()';
+  return 'AppFailure.validation(messages: $messages)';
 }
 
 
 }
 
+/// @nodoc
+abstract mixin class $ValidationFailureCopyWith<$Res> implements $AppFailureCopyWith<$Res> {
+  factory $ValidationFailureCopyWith(ValidationFailure value, $Res Function(ValidationFailure) _then) = _$ValidationFailureCopyWithImpl;
+@useResult
+$Res call({
+ List<String> messages
+});
 
 
+
+
+}
+/// @nodoc
+class _$ValidationFailureCopyWithImpl<$Res>
+    implements $ValidationFailureCopyWith<$Res> {
+  _$ValidationFailureCopyWithImpl(this._self, this._then);
+
+  final ValidationFailure _self;
+  final $Res Function(ValidationFailure) _then;
+
+/// Create a copy of AppFailure
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? messages = null,}) {
+  return _then(ValidationFailure(
+messages: null == messages ? _self._messages : messages // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+
+}
 
 /// @nodoc
 

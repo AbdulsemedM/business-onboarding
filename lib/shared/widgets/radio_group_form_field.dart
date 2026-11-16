@@ -55,10 +55,16 @@ class RadioGroupFormField<T> extends StatelessWidget {
               for (final option in options)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: _OptionTile(
-                    option: option,
-                    selected: field.value == option.value,
-                    colors: colors,
+                  // The tile paints its border and fill on the nearest
+                  // Material. Give it its own, or a parent with a
+                  // background (e.g. GroupCard) hides them.
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: _OptionTile(
+                      option: option,
+                      selected: field.value == option.value,
+                      colors: colors,
+                    ),
                   ),
                 ),
             ],

@@ -18,4 +18,8 @@ sealed class DocumentError with _$DocumentError implements Exception {
   /// Camera or photo access was denied; the user must allow it in Settings.
   const factory DocumentError.permissionDenied() = DocumentPermissionDenied;
   const factory DocumentError.upload(AppFailure failure) = DocumentUploadFailed;
+
+  /// Something else must be filled in first (e.g. the bill date).
+  /// [message] is already localized by the screen that knows what's missing.
+  const factory DocumentError.needsInfo(String message) = DocumentNeedsInfo;
 }

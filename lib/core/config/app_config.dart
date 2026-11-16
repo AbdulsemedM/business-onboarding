@@ -5,13 +5,16 @@
 class AppConfig {
   const AppConfig({required this.apiBaseUrl});
 
-  // TODO(backend): set the real default once the backend contract is filled in.
+  static const _unset = 'https://api.fastpay.invalid';
+
+  /// Test: `https://gateway.fastpayet.com/bo`. Prod: TBD.
   static const AppConfig current = AppConfig(
-    apiBaseUrl: String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: 'https://api.fastpay.invalid',
-    ),
+    apiBaseUrl: String.fromEnvironment('API_BASE_URL', defaultValue: _unset),
   );
 
   final String apiBaseUrl;
+
+  /// Without an API_BASE_URL the app runs on mock repositories, so the UI
+  /// can be worked on offline.
+  bool get usesRealApi => apiBaseUrl != _unset;
 }

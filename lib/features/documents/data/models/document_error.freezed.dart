@@ -55,7 +55,7 @@ extension DocumentErrorPatterns on DocumentError {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DocumentTooLarge value)?  tooLarge,TResult Function( DocumentUnsupportedType value)?  unsupportedType,TResult Function( DocumentUnreadable value)?  unreadable,TResult Function( DocumentPermissionDenied value)?  permissionDenied,TResult Function( DocumentUploadFailed value)?  upload,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DocumentTooLarge value)?  tooLarge,TResult Function( DocumentUnsupportedType value)?  unsupportedType,TResult Function( DocumentUnreadable value)?  unreadable,TResult Function( DocumentPermissionDenied value)?  permissionDenied,TResult Function( DocumentUploadFailed value)?  upload,TResult Function( DocumentNeedsInfo value)?  needsInfo,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case DocumentTooLarge() when tooLarge != null:
@@ -63,7 +63,8 @@ return tooLarge(_that);case DocumentUnsupportedType() when unsupportedType != nu
 return unsupportedType(_that);case DocumentUnreadable() when unreadable != null:
 return unreadable(_that);case DocumentPermissionDenied() when permissionDenied != null:
 return permissionDenied(_that);case DocumentUploadFailed() when upload != null:
-return upload(_that);case _:
+return upload(_that);case DocumentNeedsInfo() when needsInfo != null:
+return needsInfo(_that);case _:
   return orElse();
 
 }
@@ -81,7 +82,7 @@ return upload(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DocumentTooLarge value)  tooLarge,required TResult Function( DocumentUnsupportedType value)  unsupportedType,required TResult Function( DocumentUnreadable value)  unreadable,required TResult Function( DocumentPermissionDenied value)  permissionDenied,required TResult Function( DocumentUploadFailed value)  upload,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DocumentTooLarge value)  tooLarge,required TResult Function( DocumentUnsupportedType value)  unsupportedType,required TResult Function( DocumentUnreadable value)  unreadable,required TResult Function( DocumentPermissionDenied value)  permissionDenied,required TResult Function( DocumentUploadFailed value)  upload,required TResult Function( DocumentNeedsInfo value)  needsInfo,}){
 final _that = this;
 switch (_that) {
 case DocumentTooLarge():
@@ -89,7 +90,8 @@ return tooLarge(_that);case DocumentUnsupportedType():
 return unsupportedType(_that);case DocumentUnreadable():
 return unreadable(_that);case DocumentPermissionDenied():
 return permissionDenied(_that);case DocumentUploadFailed():
-return upload(_that);}
+return upload(_that);case DocumentNeedsInfo():
+return needsInfo(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -103,7 +105,7 @@ return upload(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DocumentTooLarge value)?  tooLarge,TResult? Function( DocumentUnsupportedType value)?  unsupportedType,TResult? Function( DocumentUnreadable value)?  unreadable,TResult? Function( DocumentPermissionDenied value)?  permissionDenied,TResult? Function( DocumentUploadFailed value)?  upload,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DocumentTooLarge value)?  tooLarge,TResult? Function( DocumentUnsupportedType value)?  unsupportedType,TResult? Function( DocumentUnreadable value)?  unreadable,TResult? Function( DocumentPermissionDenied value)?  permissionDenied,TResult? Function( DocumentUploadFailed value)?  upload,TResult? Function( DocumentNeedsInfo value)?  needsInfo,}){
 final _that = this;
 switch (_that) {
 case DocumentTooLarge() when tooLarge != null:
@@ -111,7 +113,8 @@ return tooLarge(_that);case DocumentUnsupportedType() when unsupportedType != nu
 return unsupportedType(_that);case DocumentUnreadable() when unreadable != null:
 return unreadable(_that);case DocumentPermissionDenied() when permissionDenied != null:
 return permissionDenied(_that);case DocumentUploadFailed() when upload != null:
-return upload(_that);case _:
+return upload(_that);case DocumentNeedsInfo() when needsInfo != null:
+return needsInfo(_that);case _:
   return null;
 
 }
@@ -128,14 +131,15 @@ return upload(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( int maxBytes)?  tooLarge,TResult Function()?  unsupportedType,TResult Function()?  unreadable,TResult Function()?  permissionDenied,TResult Function( AppFailure failure)?  upload,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( int maxBytes)?  tooLarge,TResult Function()?  unsupportedType,TResult Function()?  unreadable,TResult Function()?  permissionDenied,TResult Function( AppFailure failure)?  upload,TResult Function( String message)?  needsInfo,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case DocumentTooLarge() when tooLarge != null:
 return tooLarge(_that.maxBytes);case DocumentUnsupportedType() when unsupportedType != null:
 return unsupportedType();case DocumentUnreadable() when unreadable != null:
 return unreadable();case DocumentPermissionDenied() when permissionDenied != null:
 return permissionDenied();case DocumentUploadFailed() when upload != null:
-return upload(_that.failure);case _:
+return upload(_that.failure);case DocumentNeedsInfo() when needsInfo != null:
+return needsInfo(_that.message);case _:
   return orElse();
 
 }
@@ -153,14 +157,15 @@ return upload(_that.failure);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( int maxBytes)  tooLarge,required TResult Function()  unsupportedType,required TResult Function()  unreadable,required TResult Function()  permissionDenied,required TResult Function( AppFailure failure)  upload,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( int maxBytes)  tooLarge,required TResult Function()  unsupportedType,required TResult Function()  unreadable,required TResult Function()  permissionDenied,required TResult Function( AppFailure failure)  upload,required TResult Function( String message)  needsInfo,}) {final _that = this;
 switch (_that) {
 case DocumentTooLarge():
 return tooLarge(_that.maxBytes);case DocumentUnsupportedType():
 return unsupportedType();case DocumentUnreadable():
 return unreadable();case DocumentPermissionDenied():
 return permissionDenied();case DocumentUploadFailed():
-return upload(_that.failure);}
+return upload(_that.failure);case DocumentNeedsInfo():
+return needsInfo(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -174,14 +179,15 @@ return upload(_that.failure);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( int maxBytes)?  tooLarge,TResult? Function()?  unsupportedType,TResult? Function()?  unreadable,TResult? Function()?  permissionDenied,TResult? Function( AppFailure failure)?  upload,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( int maxBytes)?  tooLarge,TResult? Function()?  unsupportedType,TResult? Function()?  unreadable,TResult? Function()?  permissionDenied,TResult? Function( AppFailure failure)?  upload,TResult? Function( String message)?  needsInfo,}) {final _that = this;
 switch (_that) {
 case DocumentTooLarge() when tooLarge != null:
 return tooLarge(_that.maxBytes);case DocumentUnsupportedType() when unsupportedType != null:
 return unsupportedType();case DocumentUnreadable() when unreadable != null:
 return unreadable();case DocumentPermissionDenied() when permissionDenied != null:
 return permissionDenied();case DocumentUploadFailed() when upload != null:
-return upload(_that.failure);case _:
+return upload(_that.failure);case DocumentNeedsInfo() when needsInfo != null:
+return needsInfo(_that.message);case _:
   return null;
 
 }
@@ -424,6 +430,72 @@ $AppFailureCopyWith<$Res> get failure {
     return _then(_self.copyWith(failure: value));
   });
 }
+}
+
+/// @nodoc
+
+
+class DocumentNeedsInfo implements DocumentError {
+  const DocumentNeedsInfo(this.message);
+  
+
+ final  String message;
+
+/// Create a copy of DocumentError
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DocumentNeedsInfoCopyWith<DocumentNeedsInfo> get copyWith => _$DocumentNeedsInfoCopyWithImpl<DocumentNeedsInfo>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DocumentNeedsInfo&&(identical(other.message, message) || other.message == message));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'DocumentError.needsInfo(message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $DocumentNeedsInfoCopyWith<$Res> implements $DocumentErrorCopyWith<$Res> {
+  factory $DocumentNeedsInfoCopyWith(DocumentNeedsInfo value, $Res Function(DocumentNeedsInfo) _then) = _$DocumentNeedsInfoCopyWithImpl;
+@useResult
+$Res call({
+ String message
+});
+
+
+
+
+}
+/// @nodoc
+class _$DocumentNeedsInfoCopyWithImpl<$Res>
+    implements $DocumentNeedsInfoCopyWith<$Res> {
+  _$DocumentNeedsInfoCopyWithImpl(this._self, this._then);
+
+  final DocumentNeedsInfo _self;
+  final $Res Function(DocumentNeedsInfo) _then;
+
+/// Create a copy of DocumentError
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(DocumentNeedsInfo(
+null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 // dart format on

@@ -9,6 +9,11 @@ import '../../../../shared/widgets/radio_group_form_field.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../../documents/data/models/document_source.dart';
 import '../../../documents/ui/document_form_field.dart';
+import '../../../../core/errors/app_failure.dart';
+import '../../../../core/errors/failure_messages.dart';
+import '../../../documents/data/document_repository.dart';
+import '../../../documents/data/models/document_error.dart';
+import '../../data/application_repository.dart';
 import '../../logic/step_validation.dart';
 import '../../logic/wizard_cubit.dart';
 import '../../logic/wizard_state.dart';
@@ -39,6 +44,9 @@ class _Step2DocumentsScreenState extends State<Step2DocumentsScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   late final StepValidation _validation = context.read<StepValidation>();
 
+  /// Set by the first Next on this step.
+  bool _showErrors = false;
+
   @override
   void initState() {
     super.initState();
@@ -51,9 +59,13 @@ class _Step2DocumentsScreenState extends State<Step2DocumentsScreen> {
     super.dispose();
   }
 
-  bool _validate() =>
-      _formKey.currentState?.validate(autoScrollWhenFocusOnInvalid: true) ??
-      false;
+  bool _validate() {
+    if (!_showErrors) setState(() => _showErrors = true);
+    return _formKey.currentState?.validate(
+          autoScrollWhenFocusOnInvalid: true,
+        ) ??
+        false;
+  }
 
   void _update(Step2DocumentsData Function(Step2DocumentsData data) change) {
     context.read<WizardCubit>().updateDraft(
@@ -66,6 +78,90 @@ class _Step2DocumentsScreenState extends State<Step2DocumentsScreen> {
     PartnerDocuments Function(PartnerDocuments partner) change,
   ) => _update((d) => d.withPartnerUpdated(id, change));
 
+  WizardCubit get _wizard => context.read<WizardCubit>();
+  ApplicationRepository get _repository =>
+      context.read<ApplicationRepository>();
+
+  /// Server owner id for a partner, creating it on the server if needed.
+  /// The first partner is the Step 1 owner.
+  Future<String> _ownerIdFor(String partnerId, AppLocalizations l10n) async {
+    final draft = _wizard.state.draft;
+    final partners = draft.documents.partners;
+    final index = partners.indexWhere((p) => p.id == partnerId);
+    if (index <= 0) {
+      final saved = draft.primaryOwnerId;
+      if (saved != null) return saved;
+      final id = await _repository.saveBusinessDetails(draft.business);
+      _wizard.updateDraft((d) => d.copyWith(primaryOwnerId: id));
+      return id;
+    }
+    final partner = partners[index];
+    if (partner.ownerId case final id?) return id;
+    if (partner.firstName == null || partner.lastName == null) {
+      throw DocumentError.needsInfo(l10n.docNeedsPartnerName);
+    }
+    final id = await _repository.savePartner(
+      firstName: partner.firstName,
+      lastName: partner.lastName,
+    );
+    _updatePartner(partnerId, (p) => p.copyWith(ownerId: id));
+    return id;
+  }
+
+  PartnerDocuments? _partner(String id) => _wizard
+      .state
+      .draft
+      .documents
+      .partners
+      .where((p) => p.id == id)
+      .firstOrNull;
+
+  Future<UploadOptions> _idOptions(
+    String partnerId,
+    AppLocalizations l10n,
+  ) async => UploadOptions(
+    businessOwnerId: await _ownerIdFor(partnerId, l10n),
+    identificationListsPoBox: _partner(partnerId)?.idShowsPoBox ?? false,
+  );
+
+  Future<UploadOptions> _homeBillOptions(
+    String partnerId,
+    AppLocalizations l10n,
+  ) async {
+    final date = _partner(partnerId)?.homeUtilityBillDate;
+    if (date == null) throw DocumentError.needsInfo(l10n.docNeedsBillDate);
+    return UploadOptions(
+      businessOwnerId: await _ownerIdFor(partnerId, l10n),
+      documentDate: date,
+    );
+  }
+
+  Future<UploadOptions> _businessBillOptions(AppLocalizations l10n) async {
+    final date = _wizard.state.draft.documents.businessUtilityBillDate;
+    if (date == null) throw DocumentError.needsInfo(l10n.docNeedsBillDate);
+    return UploadOptions(documentDate: date);
+  }
+
+  /// Removes the partner here and, if they were saved, on the server.
+  Future<void> _removePartner(PartnerDocuments partner) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final ownerId = partner.ownerId;
+    if (ownerId != null) {
+      try {
+        await _repository.removePartner(ownerId);
+      } on AppFailure catch (failure) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.partnerRemoveFailed(failure.message(l10n))),
+          ),
+        );
+        return;
+      }
+    }
+    _update((d) => d.withPartnerRemoved(partner.id));
+  }
+
   void _addPartner() => _update(
     (d) =>
         d.withPartnerAdded('partner-${DateTime.now().microsecondsSinceEpoch}'),
@@ -77,7 +173,11 @@ class _Step2DocumentsScreenState extends State<Step2DocumentsScreen> {
 
     return FormBuilder(
       key: _formKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      // Quiet while the user fills the form in; after the first Next, errors
+      // update as they type.
+      autovalidateMode: _showErrors
+          ? AutovalidateMode.onUserInteraction
+          : AutovalidateMode.disabled,
       child: BlocSelector<WizardCubit, WizardState, _Step2View>(
         selector: (state) => (
           documents: state.draft.documents,
@@ -120,9 +220,9 @@ class _Step2DocumentsScreenState extends State<Step2DocumentsScreen> {
         number: index + 1,
         ownerName: index == 0 ? ownerName : null,
         onChanged: (change) => _updatePartner(partner.id, change),
-        onRemove: index == 0
-            ? null
-            : () => _update((d) => d.withPartnerRemoved(partner.id)),
+        idUploadOptions: () => _idOptions(partner.id, l10n),
+        homeBillUploadOptions: () => _homeBillOptions(partner.id, l10n),
+        onRemove: index == 0 ? null : () => _removePartner(partner),
       ),
     const SizedBox(height: 8),
     Align(
@@ -261,7 +361,8 @@ class _Step2DocumentsScreenState extends State<Step2DocumentsScreen> {
         requiredErrorText: required,
         onChanged: (doc) =>
             _update((d) => d.copyWith(businessUtilityBill: doc)),
-        footer: BillDateField(
+        uploadOptions: () => _businessBillOptions(l10n),
+        details: BillDateField(
           name: Step2Fields.businessBillDate,
           window: BillWindow.last90Days,
           initialValue: data.businessUtilityBillDate,

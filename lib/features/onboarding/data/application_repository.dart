@@ -1,30 +1,158 @@
+import 'package:dio/dio.dart';
+
+import '../../../core/api/api_client.dart';
+import '../../../core/api/interceptors/error_interceptor.dart';
+import '../../../core/errors/app_failure.dart';
+import '../../../core/storage/session_store.dart';
+import '../step1_business/data/step1_business_data.dart';
+import 'api_mappers.dart';
 import 'models/application_status.dart';
 import 'models/onboarding_draft.dart';
 import 'models/onboarding_step.dart';
 
-/// Submitting the application and reading its review status.
+/// Saving the application to the server, submitting it, and reading its
+/// review status. Errors are thrown as [AppFailure].
 ///
-/// Real API (docs/api/README.md): `POST .../applications/{id}/submit` for
-/// both first submit and resubmit, and `GET .../applications/{id}` for the
-/// status and `openCorrections`.
+/// API (docs/api/README.md): one POST per step, owners CRUD, a single
+/// `POST .../submit` for submit and resubmit, `GET .../applications/{id}`.
 abstract interface class ApplicationRepository {
-  /// First submit. Throws an [AppFailure] on error.
+  /// Saves Step 1. Returns the primary owner's server id.
+  Future<String> saveBusinessDetails(Step1BusinessData business);
+
+  /// Creates ([ownerId] null) or updates a partner after the first.
+  /// Returns the server owner id.
+  Future<String> savePartner({
+    String? ownerId,
+    required String? firstName,
+    required String? lastName,
+  });
+
+  Future<void> removePartner(String ownerId);
+
+  /// Saves Step 3 (replaces the whole staff list).
+  Future<void> saveCompliance(OnboardingDraft draft);
+
+  /// First submit. A refused submit throws [ValidationFailure] whose
+  /// messages say what is still missing.
   Future<ApplicationSnapshot> submit(OnboardingDraft draft);
 
   /// Resubmit after corrections. [addressedCorrectionIds] must contain every
-  /// open correction id. Throws an [AppFailure] on error.
+  /// open correction id.
   Future<ApplicationSnapshot> resubmit(List<String> addressedCorrectionIds);
 
-  /// Current status. Throws an [AppFailure] on error.
+  /// Current status.
   Future<ApplicationSnapshot> fetch();
 }
 
-/// Stands in for the API until it is wired.
+class ApiApplicationRepository implements ApplicationRepository {
+  ApiApplicationRepository({
+    required Dio dio,
+    required SessionStore sessionStore,
+  }) : _dio = dio,
+       _session = sessionStore;
+
+  final Dio _dio;
+  final SessionStore _session;
+
+  Future<String> _base() async {
+    final id = (await _session.read())?.applicationId;
+    if (id == null) throw const AppFailure.unauthorized();
+    return '/api/v1/partner/applications/$id';
+  }
+
+  @override
+  Future<String> saveBusinessDetails(Step1BusinessData business) =>
+      _guard(() async {
+        final base = await _base();
+        final response = await _dio.post<dynamic>(
+          '$base/onboarding/initial-business-details',
+          data: businessDetailsBody(business),
+        );
+        final ownerId = dataOf(response)['ownerId'] as String?;
+        if (ownerId != null) return ownerId;
+        // Fallback: read the owner from the application.
+        final detail = dataOf(await _dio.get<dynamic>(base));
+        final owners = (detail['owners'] as List?) ?? const [];
+        final first = owners.whereType<Map<String, dynamic>>().firstOrNull;
+        final id = first?['id'] as String?;
+        if (id == null) throw const AppFailure.server();
+        return id;
+      });
+
+  @override
+  Future<String> savePartner({
+    String? ownerId,
+    required String? firstName,
+    required String? lastName,
+  }) => _guard(() async {
+    final base = await _base();
+    final body = partnerBody(firstName: firstName, lastName: lastName);
+    if (ownerId != null) {
+      await _dio.put<dynamic>('$base/owners/$ownerId', data: body);
+      return ownerId;
+    }
+    final response = await _dio.post<dynamic>('$base/owners', data: body);
+    final data = dataOf(response);
+    final id = (data['ownerId'] ?? data['id']) as String?;
+    if (id == null) throw const AppFailure.server();
+    return id;
+  });
+
+  @override
+  Future<void> removePartner(String ownerId) => _guard(() async {
+    await _dio.delete<dynamic>('${await _base()}/owners/$ownerId');
+  });
+
+  @override
+  Future<void> saveCompliance(OnboardingDraft draft) => _guard(() async {
+    await _dio.post<dynamic>(
+      '${await _base()}/onboarding/operations-compliance',
+      data: complianceBody(draft),
+    );
+  });
+
+  @override
+  Future<ApplicationSnapshot> submit(OnboardingDraft draft) =>
+      _submit(const {});
+
+  @override
+  Future<ApplicationSnapshot> resubmit(List<String> ids) =>
+      _submit({'addressedCorrectionItemIds': ids});
+
+  Future<ApplicationSnapshot> _submit(Map<String, dynamic> body) =>
+      _guard(() async {
+        final base = await _base();
+        try {
+          await _dio.post<dynamic>('$base/submit', data: body);
+        } on DioException catch (error) {
+          final failure = failureFrom(error);
+          if (failure is! ValidationFailure) rethrow;
+          // Say what is missing, in the server's own readable words.
+          final detail = dataOf(await _dio.get<dynamic>(base));
+          throw AppFailure.validation(messages: missingFromJson(detail));
+        }
+        return snapshotFromJson(dataOf(await _dio.get<dynamic>(base)));
+      });
+
+  @override
+  Future<ApplicationSnapshot> fetch() => _guard(() async {
+    return snapshotFromJson(dataOf(await _dio.get<dynamic>(await _base())));
+  });
+
+  Future<T> _guard<T>(Future<T> Function() call) async {
+    try {
+      return await call();
+    } catch (error) {
+      throw failureFrom(error);
+    }
+  }
+}
+
+/// Stands in for the API when no API_BASE_URL is set.
 ///
 /// To show the re-upload flow, the first submit comes back as "action
 /// required" with one rejected photo ([sampleCorrections]). Resubmitting
 /// clears it. Pass [corrections] to try other cases (e.g. a field to fix).
-// TODO(api): replace with the real repository.
 class MockApplicationRepository implements ApplicationRepository {
   MockApplicationRepository({
     this.delay = const Duration(milliseconds: 900),
@@ -34,6 +162,7 @@ class MockApplicationRepository implements ApplicationRepository {
   final Duration delay;
   final List<CorrectionItem> corrections;
   ApplicationSnapshot? _current;
+  int _nextOwner = 2;
 
   static const sampleFieldCorrection = CorrectionItem(
     id: 'mock-correction-bank',
@@ -52,6 +181,23 @@ class MockApplicationRepository implements ApplicationRepository {
       documentType: 'PHOTO_EXTERIOR_ENTRANCE',
     ),
   ];
+
+  @override
+  Future<String> saveBusinessDetails(Step1BusinessData business) async =>
+      'mock-owner-1';
+
+  @override
+  Future<String> savePartner({
+    String? ownerId,
+    required String? firstName,
+    required String? lastName,
+  }) async => ownerId ?? 'mock-owner-${_nextOwner++}';
+
+  @override
+  Future<void> removePartner(String ownerId) async {}
+
+  @override
+  Future<void> saveCompliance(OnboardingDraft draft) async {}
 
   @override
   Future<ApplicationSnapshot> submit(OnboardingDraft draft) async {

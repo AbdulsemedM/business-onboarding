@@ -27,6 +27,8 @@ _OnboardingDraft _$OnboardingDraftFromJson(
           json['compliance'] as Map<String, dynamic>,
         ),
   submitted: json['submitted'] as bool? ?? false,
+  primaryOwnerId: json['primaryOwnerId'] as String?,
+  applicationId: json['applicationId'] as String?,
 );
 
 Map<String, dynamic> _$OnboardingDraftToJson(_OnboardingDraft instance) =>
@@ -37,6 +39,8 @@ Map<String, dynamic> _$OnboardingDraftToJson(_OnboardingDraft instance) =>
       'documents': instance.documents.toJson(),
       'compliance': instance.compliance.toJson(),
       'submitted': instance.submitted,
+      'primaryOwnerId': instance.primaryOwnerId,
+      'applicationId': instance.applicationId,
     };
 
 const _$OnboardingStepEnumMap = {

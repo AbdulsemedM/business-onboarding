@@ -43,6 +43,8 @@ Do not invent endpoints: read `docs/api/` (or ask me) before writing any API cod
 - Brand: primary `#0155EB`, secondary `#24397C`, white surfaces (`lib/core/theme/app_theme.dart`). The app is locked to the light theme (`themeMode: ThemeMode.light`); dark mode is defined but off.
 - Submit/status go through `ApplicationRepository` (mock until wired). After a submit the draft's `submitted` flag sends Welcome to the status screen. Field corrections are fixed in the wizard and resubmitted from Review; document corrections are re-uploaded on the status screen.
 - Secrets are git-ignored (`.env*`, signing keys, Firebase configs, Postman environments). Never commit them.
+- The local draft carries its `applicationId`; signing in to a different application discards it, so one account never sees another's answers.
+- Form errors stay hidden until the first Next on a step, then update as the user types.
 - Partner 1 is the owner. Step 3 "Same as owner" (default on) refers to them. At least one transaction processor is required.
 
 ## Commands
@@ -154,5 +156,5 @@ Repositories stay behind interfaces. The mock and real implementations are swapp
 6. ~~Step 3 dynamic lists~~
 7. ~~Review and submit~~
 8. ~~Status screen and re-upload flow~~
-9. Wire real API, error handling, offline behavior
+9. ~~Wire real API, error handling~~ (verified live on the test backend, 2026-11-16). Still open: offline upload queue, loading answers back from the server, `.../replace` for re-uploads
 10. Tests (unit for validators and blocs, widget tests for each step) and polish

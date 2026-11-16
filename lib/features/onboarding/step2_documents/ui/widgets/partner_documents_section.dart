@@ -5,6 +5,7 @@ import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/widgets/group_card.dart';
 import '../../../../../shared/widgets/name_form_field.dart';
 import '../../../../../shared/widgets/radio_group_form_field.dart';
+import '../../../../documents/data/document_repository.dart';
 import '../../../../documents/ui/document_form_field.dart';
 import '../../data/step2_documents_data.dart';
 import '../../logic/bill_date_rules.dart';
@@ -20,6 +21,8 @@ class PartnerDocumentsSection extends StatelessWidget {
     required this.onChanged,
     this.ownerName,
     this.onRemove,
+    this.idUploadOptions,
+    this.homeBillUploadOptions,
   }) : super(key: ValueKey('partner:${partner.id}'));
 
   final PartnerDocuments partner;
@@ -36,6 +39,12 @@ class PartnerDocumentsSection extends StatelessWidget {
 
   /// Null for the first partner, who can't be removed.
   final VoidCallback? onRemove;
+
+  /// Owner id and P.O. Box flag for the ID upload, read at upload time.
+  final Future<UploadOptions> Function()? idUploadOptions;
+
+  /// Owner id and bill date for the home bill upload.
+  final Future<UploadOptions> Function()? homeBillUploadOptions;
 
   Future<void> _confirmRemove(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
@@ -90,7 +99,7 @@ class PartnerDocumentsSection extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           if (ownerName case final name?)
             Text(l10n.step2OwnerName(name))
           else ...[
@@ -146,6 +155,7 @@ class PartnerDocumentsSection extends StatelessWidget {
               initialDocument: partner.idDocument,
               requiredErrorText: l10n.docErrorRequired,
               onChanged: (doc) => onChanged((p) => p.copyWith(idDocument: doc)),
+              uploadOptions: idUploadOptions,
             ),
           // A passport always needs the bill, so the question is skipped.
           if (partner.idType != PersonalIdType.passport)
@@ -167,7 +177,8 @@ class PartnerDocumentsSection extends StatelessWidget {
               requiredErrorText: l10n.docErrorRequired,
               onChanged: (doc) =>
                   onChanged((p) => p.copyWith(homeUtilityBill: doc)),
-              footer: BillDateField(
+              uploadOptions: homeBillUploadOptions,
+              details: BillDateField(
                 name: Step2Fields.homeBillDate(id),
                 window: BillWindow.last60Days,
                 initialValue: partner.homeUtilityBillDate,

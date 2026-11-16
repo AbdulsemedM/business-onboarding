@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
+import '../data/document_repository.dart';
 import '../data/models/document_source.dart';
 import '../data/models/uploaded_document.dart';
 import 'document_upload_card.dart';
@@ -21,7 +22,8 @@ class DocumentFormField extends StatelessWidget {
     this.description,
     this.sources = DocumentSource.values,
     this.cameraHint,
-    this.footer,
+    this.details,
+    this.uploadOptions,
   }) : super(key: ValueKey('document:$name'));
 
   final String name;
@@ -32,7 +34,8 @@ class DocumentFormField extends StatelessWidget {
   final String? cameraHint;
   final UploadedDocument? initialDocument;
   final ValueChanged<UploadedDocument?> onChanged;
-  final Widget? footer;
+  final Widget? details;
+  final Future<UploadOptions> Function()? uploadOptions;
 
   /// Shown when no document is uploaded. Null means the document is optional.
   final String? requiredErrorText;
@@ -51,7 +54,8 @@ class DocumentFormField extends StatelessWidget {
         cameraHint: cameraHint,
         initialDocument: initialDocument,
         errorText: field.errorText,
-        footer: footer,
+        details: details,
+        uploadOptions: uploadOptions,
         // The card keeps this callback for its lifetime. It only uses the
         // field state and the owner's callback, which don't change.
         onChanged: (document) {

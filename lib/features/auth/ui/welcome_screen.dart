@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
+import 'sign_out.dart';
 import '../../onboarding/logic/wizard_cubit.dart';
 import '../../onboarding/logic/wizard_state.dart';
 
@@ -97,6 +98,10 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () => confirmSignOut(context),
+                        child: Text(l10n.authSignOut),
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

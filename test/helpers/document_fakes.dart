@@ -60,6 +60,10 @@ class FakeDocumentRepository implements DocumentRepository {
   int failuresLeft = 0;
   int uploadCount = 0;
 
+  /// Options of the last upload, to check what a screen sent.
+  UploadOptions? lastOptions;
+  String? lastDocumentType;
+
   /// When set, uploads wait for this before finishing.
   Completer<void>? gate;
 
@@ -70,9 +74,12 @@ class FakeDocumentRepository implements DocumentRepository {
   Future<UploadedDocument> upload(
     LocalFile file, {
     required String documentType,
+    UploadOptions options = const UploadOptions(),
     required void Function(double progress) onProgress,
   }) async {
     uploadCount++;
+    lastOptions = options;
+    lastDocumentType = documentType;
     onProgress(0.5);
     await gate?.future;
     if (failuresLeft > 0) {

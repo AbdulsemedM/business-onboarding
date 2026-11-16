@@ -9,6 +9,7 @@ part of 'step2_documents_data.dart';
 _PartnerDocuments _$PartnerDocumentsFromJson(Map<String, dynamic> json) =>
     _PartnerDocuments(
       id: json['id'] as String,
+      ownerId: json['ownerId'] as String?,
       firstName: json['firstName'] as String?,
       lastName: json['lastName'] as String?,
       idType: $enumDecodeNullable(_$PersonalIdTypeEnumMap, json['idType']),
@@ -31,6 +32,7 @@ _PartnerDocuments _$PartnerDocumentsFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$PartnerDocumentsToJson(_PartnerDocuments instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'ownerId': instance.ownerId,
       'firstName': instance.firstName,
       'lastName': instance.lastName,
       'idType': _$PersonalIdTypeEnumMap[instance.idType],

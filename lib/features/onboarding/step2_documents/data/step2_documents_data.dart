@@ -87,6 +87,10 @@ abstract class PartnerDocuments with _$PartnerDocuments {
     /// Local id used to tell partners apart on the device. Not sent.
     required String id,
 
+    /// Server owner id (backend `ownerId`) once this partner was saved.
+    /// Unused for the first partner: that is the Step 1 owner.
+    String? ownerId,
+
     /// Legal name, as on the ID. Personal data: never log it.
     /// Not used for the first partner: that is the owner from Step 1.
     String? firstName,

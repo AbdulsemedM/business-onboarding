@@ -63,6 +63,24 @@ class WizardCubit extends Cubit<WizardState> {
     await saveNow();
   }
 
+  /// Ties the draft to the signed-in application. A draft saved for a
+  /// different application (another account) is discarded, so one account's
+  /// answers are never shown or sent under another.
+  Future<void> bindApplication(String applicationId) async {
+    if (!state.isLoaded) await stream.firstWhere((s) => s.isLoaded);
+    final draft = state.draft;
+    if (draft.applicationId == applicationId) return;
+    // A draft without an id predates sign-in (older builds) and is adopted.
+    if (draft.applicationId != null) {
+      safeLog('Draft belongs to another application; discarded');
+      await discardDraft();
+    }
+    emit(
+      state.copyWith(draft: state.draft.copyWith(applicationId: applicationId)),
+    );
+    await saveNow();
+  }
+
   /// Deletes the local draft and starts over.
   Future<void> discardDraft() async {
     _autosave.cancel();

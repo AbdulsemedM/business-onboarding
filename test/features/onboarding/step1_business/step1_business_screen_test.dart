@@ -68,6 +68,32 @@ void main() {
     expect(store.stored?.currentStep, isNot(OnboardingStep.documents));
   });
 
+  testWidgets('no errors while typing until Next is pressed', (tester) async {
+    await openStep1(tester);
+
+    await tester.enterText(field('Owner first name'), 'Alex');
+    await tester.pump();
+    expect(find.text('Select at least one day'), findsNothing);
+    expect(find.text('This field is required'), findsNothing);
+
+    await tapNext(tester);
+    expect(find.text('Select at least one day'), findsOneWidget);
+
+    // After Next, a fixed field clears its error as the user types.
+    await tester.enterText(field('Owner last name'), 'Owner');
+    await tester.pump();
+    expect(
+      find.descendant(
+        of: find.ancestor(
+          of: find.text('Owner last name'),
+          matching: find.byType(TextField),
+        ),
+        matching: find.text('This field is required'),
+      ),
+      findsNothing,
+    );
+  });
+
   testWidgets('complete form moves on to Documents', (tester) async {
     await openStep1(tester, completeStep1);
 

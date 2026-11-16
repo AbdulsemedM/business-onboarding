@@ -23,6 +23,7 @@ class DocumentUploadCubit extends Cubit<DocumentUploadState> {
     UploadedDocument? initialDocument,
     String? rejectionReason,
     this.onChanged,
+    this.resolveOptions,
   }) : _repository = repository,
        _picker = picker,
        _preparer = preparer,
@@ -42,6 +43,10 @@ class DocumentUploadCubit extends Cubit<DocumentUploadState> {
   final DocumentPicker _picker;
   final FilePreparer _preparer;
   final void Function(UploadedDocument? document)? onChanged;
+
+  /// Read right before each upload, so it sees the latest answers (bill
+  /// date, partner). May throw [DocumentError.needsInfo].
+  final Future<UploadOptions> Function()? resolveOptions;
 
   bool get isBusy => state is DocumentPreparing || state is DocumentUploading;
 
@@ -126,9 +131,11 @@ class DocumentUploadCubit extends Cubit<DocumentUploadState> {
       ),
     );
     try {
+      final options = await resolveOptions?.call() ?? const UploadOptions();
       final document = await _repository.upload(
         file,
         documentType: documentType,
+        options: options,
         onProgress: (progress) => _emit(
           DocumentUploadState.uploading(
             file: file,
@@ -140,6 +147,9 @@ class DocumentUploadCubit extends Cubit<DocumentUploadState> {
       await _preparer.discard(file);
       _emit(DocumentUploadState.uploaded(document));
       if (!isClosed) onChanged?.call(document);
+    } on DocumentError catch (error) {
+      // Keep the file so Retry works once the missing info is entered.
+      _fail(error, file: file, previous: previous);
     } catch (error) {
       _fail(
         DocumentError.upload(failureFrom(error)),

@@ -10,8 +10,13 @@ sealed class AppFailure with _$AppFailure implements Exception {
   const factory AppFailure.timeout() = TimeoutFailure;
   const factory AppFailure.unauthorized() = UnauthorizedFailure;
 
-  // TODO(backend): parse field errors once the error response format is known.
-  const factory AppFailure.validation() = ValidationFailure;
+  /// The server rejected the input. [messages] are readable explanations
+  /// from the server when it gives them (e.g. what is still missing before
+  /// submit); field-level `validationErrors` are not shown as-is because
+  /// they are technical.
+  const factory AppFailure.validation({
+    @Default(<String>[]) List<String> messages,
+  }) = ValidationFailure;
   const factory AppFailure.server({int? statusCode}) = ServerFailure;
   const factory AppFailure.unknown() = UnknownFailure;
 }

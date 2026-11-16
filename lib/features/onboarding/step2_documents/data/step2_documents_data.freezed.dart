@@ -16,7 +16,9 @@ T _$identity<T>(T value) => value;
 mixin _$PartnerDocuments {
 
 /// Local id used to tell partners apart on the device. Not sent.
- String get id;/// Legal name, as on the ID. Personal data: never log it.
+ String get id;/// Server owner id (backend `ownerId`) once this partner was saved.
+/// Unused for the first partner: that is the Step 1 owner.
+ String? get ownerId;/// Legal name, as on the ID. Personal data: never log it.
 /// Not used for the first partner: that is the owner from Step 1.
  String? get firstName; String? get lastName; PersonalIdType? get idType; UploadedDocument? get idDocument;/// The ID lists a P.O. Box instead of a street address.
  bool get idShowsPoBox;// Only needed for a passport or a P.O. Box address. Kept (but hidden)
@@ -35,16 +37,16 @@ $PartnerDocumentsCopyWith<PartnerDocuments> get copyWith => _$PartnerDocumentsCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PartnerDocuments&&(identical(other.id, id) || other.id == id)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.idType, idType) || other.idType == idType)&&(identical(other.idDocument, idDocument) || other.idDocument == idDocument)&&(identical(other.idShowsPoBox, idShowsPoBox) || other.idShowsPoBox == idShowsPoBox)&&(identical(other.homeUtilityBill, homeUtilityBill) || other.homeUtilityBill == homeUtilityBill)&&(identical(other.homeUtilityBillDate, homeUtilityBillDate) || other.homeUtilityBillDate == homeUtilityBillDate));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PartnerDocuments&&(identical(other.id, id) || other.id == id)&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.idType, idType) || other.idType == idType)&&(identical(other.idDocument, idDocument) || other.idDocument == idDocument)&&(identical(other.idShowsPoBox, idShowsPoBox) || other.idShowsPoBox == idShowsPoBox)&&(identical(other.homeUtilityBill, homeUtilityBill) || other.homeUtilityBill == homeUtilityBill)&&(identical(other.homeUtilityBillDate, homeUtilityBillDate) || other.homeUtilityBillDate == homeUtilityBillDate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,firstName,lastName,idType,idDocument,idShowsPoBox,homeUtilityBill,homeUtilityBillDate);
+int get hashCode => Object.hash(runtimeType,id,ownerId,firstName,lastName,idType,idDocument,idShowsPoBox,homeUtilityBill,homeUtilityBillDate);
 
 @override
 String toString() {
-  return 'PartnerDocuments(id: $id, firstName: $firstName, lastName: $lastName, idType: $idType, idDocument: $idDocument, idShowsPoBox: $idShowsPoBox, homeUtilityBill: $homeUtilityBill, homeUtilityBillDate: $homeUtilityBillDate)';
+  return 'PartnerDocuments(id: $id, ownerId: $ownerId, firstName: $firstName, lastName: $lastName, idType: $idType, idDocument: $idDocument, idShowsPoBox: $idShowsPoBox, homeUtilityBill: $homeUtilityBill, homeUtilityBillDate: $homeUtilityBillDate)';
 }
 
 
@@ -55,7 +57,7 @@ abstract mixin class $PartnerDocumentsCopyWith<$Res>  {
   factory $PartnerDocumentsCopyWith(PartnerDocuments value, $Res Function(PartnerDocuments) _then) = _$PartnerDocumentsCopyWithImpl;
 @useResult
 $Res call({
- String id, String? firstName, String? lastName, PersonalIdType? idType, UploadedDocument? idDocument, bool idShowsPoBox, UploadedDocument? homeUtilityBill, DateTime? homeUtilityBillDate
+ String id, String? ownerId, String? firstName, String? lastName, PersonalIdType? idType, UploadedDocument? idDocument, bool idShowsPoBox, UploadedDocument? homeUtilityBill, DateTime? homeUtilityBillDate
 });
 
 
@@ -72,10 +74,11 @@ class _$PartnerDocumentsCopyWithImpl<$Res>
 
 /// Create a copy of PartnerDocuments
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? firstName = freezed,Object? lastName = freezed,Object? idType = freezed,Object? idDocument = freezed,Object? idShowsPoBox = null,Object? homeUtilityBill = freezed,Object? homeUtilityBillDate = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? ownerId = freezed,Object? firstName = freezed,Object? lastName = freezed,Object? idType = freezed,Object? idDocument = freezed,Object? idShowsPoBox = null,Object? homeUtilityBill = freezed,Object? homeUtilityBillDate = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,firstName: freezed == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as String,ownerId: freezed == ownerId ? _self.ownerId : ownerId // ignore: cast_nullable_to_non_nullable
+as String?,firstName: freezed == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
 as String?,lastName: freezed == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
 as String?,idType: freezed == idType ? _self.idType : idType // ignore: cast_nullable_to_non_nullable
 as PersonalIdType?,idDocument: freezed == idDocument ? _self.idDocument : idDocument // ignore: cast_nullable_to_non_nullable
@@ -191,10 +194,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? firstName,  String? lastName,  PersonalIdType? idType,  UploadedDocument? idDocument,  bool idShowsPoBox,  UploadedDocument? homeUtilityBill,  DateTime? homeUtilityBillDate)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? ownerId,  String? firstName,  String? lastName,  PersonalIdType? idType,  UploadedDocument? idDocument,  bool idShowsPoBox,  UploadedDocument? homeUtilityBill,  DateTime? homeUtilityBillDate)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PartnerDocuments() when $default != null:
-return $default(_that.id,_that.firstName,_that.lastName,_that.idType,_that.idDocument,_that.idShowsPoBox,_that.homeUtilityBill,_that.homeUtilityBillDate);case _:
+return $default(_that.id,_that.ownerId,_that.firstName,_that.lastName,_that.idType,_that.idDocument,_that.idShowsPoBox,_that.homeUtilityBill,_that.homeUtilityBillDate);case _:
   return orElse();
 
 }
@@ -212,10 +215,10 @@ return $default(_that.id,_that.firstName,_that.lastName,_that.idType,_that.idDoc
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? firstName,  String? lastName,  PersonalIdType? idType,  UploadedDocument? idDocument,  bool idShowsPoBox,  UploadedDocument? homeUtilityBill,  DateTime? homeUtilityBillDate)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? ownerId,  String? firstName,  String? lastName,  PersonalIdType? idType,  UploadedDocument? idDocument,  bool idShowsPoBox,  UploadedDocument? homeUtilityBill,  DateTime? homeUtilityBillDate)  $default,) {final _that = this;
 switch (_that) {
 case _PartnerDocuments():
-return $default(_that.id,_that.firstName,_that.lastName,_that.idType,_that.idDocument,_that.idShowsPoBox,_that.homeUtilityBill,_that.homeUtilityBillDate);case _:
+return $default(_that.id,_that.ownerId,_that.firstName,_that.lastName,_that.idType,_that.idDocument,_that.idShowsPoBox,_that.homeUtilityBill,_that.homeUtilityBillDate);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -232,10 +235,10 @@ return $default(_that.id,_that.firstName,_that.lastName,_that.idType,_that.idDoc
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? firstName,  String? lastName,  PersonalIdType? idType,  UploadedDocument? idDocument,  bool idShowsPoBox,  UploadedDocument? homeUtilityBill,  DateTime? homeUtilityBillDate)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? ownerId,  String? firstName,  String? lastName,  PersonalIdType? idType,  UploadedDocument? idDocument,  bool idShowsPoBox,  UploadedDocument? homeUtilityBill,  DateTime? homeUtilityBillDate)?  $default,) {final _that = this;
 switch (_that) {
 case _PartnerDocuments() when $default != null:
-return $default(_that.id,_that.firstName,_that.lastName,_that.idType,_that.idDocument,_that.idShowsPoBox,_that.homeUtilityBill,_that.homeUtilityBillDate);case _:
+return $default(_that.id,_that.ownerId,_that.firstName,_that.lastName,_that.idType,_that.idDocument,_that.idShowsPoBox,_that.homeUtilityBill,_that.homeUtilityBillDate);case _:
   return null;
 
 }
@@ -247,11 +250,14 @@ return $default(_that.id,_that.firstName,_that.lastName,_that.idType,_that.idDoc
 @JsonSerializable()
 
 class _PartnerDocuments extends PartnerDocuments {
-  const _PartnerDocuments({required this.id, this.firstName, this.lastName, this.idType, this.idDocument, this.idShowsPoBox = false, this.homeUtilityBill, this.homeUtilityBillDate}): super._();
+  const _PartnerDocuments({required this.id, this.ownerId, this.firstName, this.lastName, this.idType, this.idDocument, this.idShowsPoBox = false, this.homeUtilityBill, this.homeUtilityBillDate}): super._();
   factory _PartnerDocuments.fromJson(Map<String, dynamic> json) => _$PartnerDocumentsFromJson(json);
 
 /// Local id used to tell partners apart on the device. Not sent.
 @override final  String id;
+/// Server owner id (backend `ownerId`) once this partner was saved.
+/// Unused for the first partner: that is the Step 1 owner.
+@override final  String? ownerId;
 /// Legal name, as on the ID. Personal data: never log it.
 /// Not used for the first partner: that is the owner from Step 1.
 @override final  String? firstName;
@@ -279,16 +285,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PartnerDocuments&&(identical(other.id, id) || other.id == id)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.idType, idType) || other.idType == idType)&&(identical(other.idDocument, idDocument) || other.idDocument == idDocument)&&(identical(other.idShowsPoBox, idShowsPoBox) || other.idShowsPoBox == idShowsPoBox)&&(identical(other.homeUtilityBill, homeUtilityBill) || other.homeUtilityBill == homeUtilityBill)&&(identical(other.homeUtilityBillDate, homeUtilityBillDate) || other.homeUtilityBillDate == homeUtilityBillDate));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PartnerDocuments&&(identical(other.id, id) || other.id == id)&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.idType, idType) || other.idType == idType)&&(identical(other.idDocument, idDocument) || other.idDocument == idDocument)&&(identical(other.idShowsPoBox, idShowsPoBox) || other.idShowsPoBox == idShowsPoBox)&&(identical(other.homeUtilityBill, homeUtilityBill) || other.homeUtilityBill == homeUtilityBill)&&(identical(other.homeUtilityBillDate, homeUtilityBillDate) || other.homeUtilityBillDate == homeUtilityBillDate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,firstName,lastName,idType,idDocument,idShowsPoBox,homeUtilityBill,homeUtilityBillDate);
+int get hashCode => Object.hash(runtimeType,id,ownerId,firstName,lastName,idType,idDocument,idShowsPoBox,homeUtilityBill,homeUtilityBillDate);
 
 @override
 String toString() {
-  return 'PartnerDocuments(id: $id, firstName: $firstName, lastName: $lastName, idType: $idType, idDocument: $idDocument, idShowsPoBox: $idShowsPoBox, homeUtilityBill: $homeUtilityBill, homeUtilityBillDate: $homeUtilityBillDate)';
+  return 'PartnerDocuments(id: $id, ownerId: $ownerId, firstName: $firstName, lastName: $lastName, idType: $idType, idDocument: $idDocument, idShowsPoBox: $idShowsPoBox, homeUtilityBill: $homeUtilityBill, homeUtilityBillDate: $homeUtilityBillDate)';
 }
 
 
@@ -299,7 +305,7 @@ abstract mixin class _$PartnerDocumentsCopyWith<$Res> implements $PartnerDocumen
   factory _$PartnerDocumentsCopyWith(_PartnerDocuments value, $Res Function(_PartnerDocuments) _then) = __$PartnerDocumentsCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String? firstName, String? lastName, PersonalIdType? idType, UploadedDocument? idDocument, bool idShowsPoBox, UploadedDocument? homeUtilityBill, DateTime? homeUtilityBillDate
+ String id, String? ownerId, String? firstName, String? lastName, PersonalIdType? idType, UploadedDocument? idDocument, bool idShowsPoBox, UploadedDocument? homeUtilityBill, DateTime? homeUtilityBillDate
 });
 
 
@@ -316,10 +322,11 @@ class __$PartnerDocumentsCopyWithImpl<$Res>
 
 /// Create a copy of PartnerDocuments
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? firstName = freezed,Object? lastName = freezed,Object? idType = freezed,Object? idDocument = freezed,Object? idShowsPoBox = null,Object? homeUtilityBill = freezed,Object? homeUtilityBillDate = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? ownerId = freezed,Object? firstName = freezed,Object? lastName = freezed,Object? idType = freezed,Object? idDocument = freezed,Object? idShowsPoBox = null,Object? homeUtilityBill = freezed,Object? homeUtilityBillDate = freezed,}) {
   return _then(_PartnerDocuments(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,firstName: freezed == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as String,ownerId: freezed == ownerId ? _self.ownerId : ownerId // ignore: cast_nullable_to_non_nullable
+as String?,firstName: freezed == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
 as String?,lastName: freezed == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
 as String?,idType: freezed == idType ? _self.idType : idType // ignore: cast_nullable_to_non_nullable
 as PersonalIdType?,idDocument: freezed == idDocument ? _self.idDocument : idDocument // ignore: cast_nullable_to_non_nullable

@@ -58,6 +58,9 @@ class _Step1BusinessScreenState extends State<Step1BusinessScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   late final StepValidation _validation = context.read<StepValidation>();
 
+  /// Set by the first Next on this step.
+  bool _showErrors = false;
+
   /// Snapshot of the draft when the screen opened, used for initial values.
   /// After that the form owns the values and pushes changes to the cubit.
   late final Step1BusinessData _initial = context
@@ -78,9 +81,13 @@ class _Step1BusinessScreenState extends State<Step1BusinessScreen> {
     super.dispose();
   }
 
-  bool _validate() =>
-      _formKey.currentState?.validate(autoScrollWhenFocusOnInvalid: true) ??
-      false;
+  bool _validate() {
+    if (!_showErrors) setState(() => _showErrors = true);
+    return _formKey.currentState?.validate(
+          autoScrollWhenFocusOnInvalid: true,
+        ) ??
+        false;
+  }
 
   void _update(Step1BusinessData Function(Step1BusinessData data) change) {
     context.read<WizardCubit>().updateDraft(
@@ -94,7 +101,11 @@ class _Step1BusinessScreenState extends State<Step1BusinessScreen> {
 
     return FormBuilder(
       key: _formKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      // Quiet while the user fills the form in; after the first Next, errors
+      // update as they type.
+      autovalidateMode: _showErrors
+          ? AutovalidateMode.onUserInteraction
+          : AutovalidateMode.disabled,
       // Not a ListView: that only builds what is on screen, and fields that
       // aren't built are skipped by validation.
       child: SingleChildScrollView(

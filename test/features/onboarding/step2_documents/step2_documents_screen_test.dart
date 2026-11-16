@@ -20,6 +20,7 @@ const _firstPartner = Step2DocumentsData.firstPartnerId;
 
 void main() {
   late FakeDraftStore store;
+  late FakeDocumentRepository documents;
 
   /// Opens the app on Step 2. By default the screen is tall enough that
   /// every card is visible and can be tapped.
@@ -44,7 +45,7 @@ void main() {
       App(
         draftStore: store,
         initialLocation: OnboardingStep.documents.path,
-        documentRepository: FakeDocumentRepository(),
+        documentRepository: documents = FakeDocumentRepository(),
         documentPicker: FakeDocumentPicker(),
         filePreparer: FakeFilePreparer(),
       ),
@@ -125,7 +126,10 @@ void main() {
   });
 
   testWidgets('uploading a document saves it to the draft', (tester) async {
-    await openStep2(tester);
+    await openStep2(
+      tester,
+      Step2DocumentsData(businessUtilityBillDate: daysAgo(5)),
+    );
 
     await upload(tester, Step2Fields.businessBill);
     await waitForAutosave(tester);
@@ -138,6 +142,64 @@ void main() {
       findsOneWidget,
     );
     expect(store.stored?.documents.businessUtilityBill, isNotNull);
+    // The backend gets the type code and the bill date with the upload.
+    expect(documents.lastDocumentType, 'BUSINESS_UTILITY_BILL');
+    expect(documents.lastOptions?.documentDate, daysAgo(5));
+  });
+
+  testWidgets('a bill asks for its date before uploading', (tester) async {
+    await openStep2(tester);
+
+    await upload(tester, Step2Fields.businessBill);
+
+    expect(
+      find.text('Enter the bill date below first, then tap Retry.'),
+      findsOneWidget,
+    );
+    expect(documents.uploadCount, 0);
+    expect(store.stored?.documents.businessUtilityBill, isNull);
+  });
+
+  testWidgets('an ID upload names its owner on the server', (tester) async {
+    await openStep2(
+      tester,
+      completeStep2().withPartnerUpdated(
+        _firstPartner,
+        (p) => p.copyWith(idDocument: null, idShowsPoBox: true),
+      ),
+    );
+
+    await upload(tester, Step2Fields.idDocument(_firstPartner));
+    await waitForAutosave(tester);
+
+    expect(documents.lastDocumentType, 'DRIVERS_LICENSE');
+    // Partner 1 is the Step 1 owner, saved on the server on demand.
+    expect(documents.lastOptions?.businessOwnerId, 'mock-owner-1');
+    expect(documents.lastOptions?.identificationListsPoBox, isTrue);
+    expect(store.stored?.primaryOwnerId, 'mock-owner-1');
+  });
+
+  testWidgets('a new partner needs a name before their ID uploads', (
+    tester,
+  ) async {
+    await openStep2(
+      tester,
+      completeStep2()
+          .withPartnerAdded('p2')
+          .withPartnerUpdated(
+            'p2',
+            (p) => p.copyWith(idType: PersonalIdType.governmentId),
+          ),
+    );
+
+    await upload(tester, Step2Fields.idDocument('p2'));
+    expect(
+      find.text(
+        "Enter this partner's first and last name first, then tap Retry.",
+      ),
+      findsOneWidget,
+    );
+    expect(documents.uploadCount, 0);
   });
 
   group('home utility bill', () {
@@ -156,14 +218,15 @@ void main() {
       await tapNext(tester);
       expect(find.text(_nextStepTitle), findsNothing);
 
+      // The date comes first: the backend checks it on upload.
       await upload(tester, Step2Fields.homeBill(_firstPartner));
-      await waitForAutosave(tester);
       expect(
-        store.stored?.documents.partners.single.homeUtilityBill,
-        isNotNull,
+        find.text('Enter the bill date below first, then tap Retry.'),
+        findsOneWidget,
       );
+      expect(store.stored?.documents.partners.single.homeUtilityBill, isNull);
 
-      // Still blocked: the bill date is missing.
+      // Still blocked: no bill, no date.
       await tapNext(tester);
       expect(find.text(_nextStepTitle), findsNothing);
       expect(find.text('This field is required'), findsOneWidget);
@@ -466,7 +529,11 @@ void main() {
           .withPartnerAdded('p3')
           .withPartnerUpdated(
             'p3',
-            (p) => p.copyWith(idType: PersonalIdType.driversLicense),
+            (p) => p.copyWith(
+              idType: PersonalIdType.driversLicense,
+              firstName: 'Jo',
+              lastName: 'Partner',
+            ),
           ),
     );
 

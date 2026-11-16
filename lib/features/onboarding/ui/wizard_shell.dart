@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/router/routes.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../core/errors/app_failure.dart';
 import '../../../core/errors/failure_messages.dart';
+import '../../../core/utils/safe_log.dart';
 import '../data/application_repository.dart';
 import '../data/models/onboarding_step.dart';
 import '../review/logic/submit_cubit.dart';
@@ -32,6 +34,9 @@ class _WizardShellState extends State<WizardShell> {
 
   OnboardingStep get _step => widget.step;
 
+  /// The current step is being saved to the server.
+  bool _saving = false;
+
   void _goBack() {
     final previous = _step.previous;
     if (previous == null) {
@@ -41,21 +46,106 @@ class _WizardShellState extends State<WizardShell> {
     _goTo(previous);
   }
 
-  void _goNext() {
+  Future<void> _goNext() async {
     FocusScope.of(context).unfocus();
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     if (!_validation.validate()) {
-      final messenger = ScaffoldMessenger.of(context);
       messenger
         ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context).fixErrorsMessage),
-          ),
-        );
+        ..showSnackBar(SnackBar(content: Text(l10n.fixErrorsMessage)));
       return;
     }
+    if (_saving) return;
+    setState(() => _saving = true);
+    try {
+      await _saveStep(_step);
+    } on AppFailure catch (failure) {
+      // The draft is kept on the device; the user can retry when ready.
+      safeLog('Step save failed: ${failure.runtimeType}');
+      if (mounted) _showFailure(failure);
+      return;
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
     final next = _step.next;
-    if (next != null) _goTo(next);
+    if (next != null && mounted) _goTo(next);
+  }
+
+  /// Saves what the step collected. Steps that save as they go (uploads)
+  /// only make sure their partners exist on the server.
+  Future<void> _saveStep(OnboardingStep step) async {
+    final wizard = context.read<WizardCubit>();
+    final repository = context.read<ApplicationRepository>();
+    final draft = wizard.state.draft;
+    switch (step) {
+      case OnboardingStep.business:
+        final ownerId = await repository.saveBusinessDetails(draft.business);
+        wizard.updateDraft((d) => d.copyWith(primaryOwnerId: ownerId));
+      case OnboardingStep.documents:
+        for (final partner in draft.documents.partners.skip(1)) {
+          final ownerId = await repository.savePartner(
+            ownerId: partner.ownerId,
+            firstName: partner.firstName,
+            lastName: partner.lastName,
+          );
+          wizard.updateDraft(
+            (d) => d.copyWith(
+              documents: d.documents.withPartnerUpdated(
+                partner.id,
+                (p) => p.copyWith(ownerId: ownerId),
+              ),
+            ),
+          );
+        }
+      case OnboardingStep.compliance:
+        // "Same as owner" needs the owner's server id.
+        if (draft.primaryOwnerId == null) {
+          final ownerId = await repository.saveBusinessDetails(draft.business);
+          wizard.updateDraft((d) => d.copyWith(primaryOwnerId: ownerId));
+        }
+        await repository.saveCompliance(wizard.state.draft);
+      case OnboardingStep.review:
+        break;
+    }
+  }
+
+  /// A refused save or submit lists the server's reasons when it gives any.
+  void _showFailure(AppFailure failure) {
+    final l10n = AppLocalizations.of(context);
+    final reasons = failure is ValidationFailure ? failure.messages : const [];
+    if (reasons.isEmpty) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(failure.message(l10n))));
+      return;
+    }
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.checklist_rounded),
+        title: Text(l10n.stillMissingTitle),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final reason in reasons)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text('• $reason'),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.ok),
+          ),
+        ],
+      ),
+    );
   }
 
   void _goTo(OnboardingStep target) {
@@ -128,13 +218,7 @@ class _WizardShellState extends State<WizardShell> {
         await context.read<WizardCubit>().markSubmitted();
         if (context.mounted) context.go(Routes.status, extra: snapshot);
       case SubmitFailed(:final failure):
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(
-              content: Text(failure.message(AppLocalizations.of(context))),
-            ),
-          );
+        _showFailure(failure);
       case SubmitIdle() || SubmitInProgress():
         break;
     }
@@ -200,6 +284,15 @@ class _WizardShellState extends State<WizardShell> {
                               onPressed: () => _confirmAndSubmit(context),
                               child: Text(l10n.submit),
                             ),
+                    )
+                  : _saving
+                  ? FilledButton.icon(
+                      onPressed: null,
+                      icon: const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      label: Text(l10n.saving),
                     )
                   : FilledButton(onPressed: _goNext, child: Text(l10n.next)),
             ),
