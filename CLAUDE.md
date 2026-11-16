@@ -23,13 +23,14 @@ Do not invent endpoints: read `docs/api/` (or ask me) before writing any API cod
 - Files: `image_picker`, `file_picker`, `flutter_image_compress`, `permission_handler`
 - Local storage: `hive_ce` for drafts (encrypted box, stored as JSON), `flutter_secure_storage` for tokens and the box key
 - Models: `freezed` + `json_serializable`
+- Env config: `envied` + `envied_generator` (`.env` compiled in, obfuscated)
 - Localization: `flutter_localizations` + `intl` (ARB)
 - Tests: `bloc_test`, `mocktail`
 
 ## Decisions so far
 - **The backend is the source of truth.** Where this file and the API differ, follow the API (`docs/api/README.md`) and update this file.
 - Step 1 matches the backend's `initial-business-details`: owner first/last name, business address (line 1 + city required, sublease toggle = `subtenant`), optional time at residence, home landlord when the home is leased, and the EIN or SSN (SSN only for the single-member SSN designation; stored as digits).
-- Single flavor, one entry point (`lib/main.dart`). API base URL via `--dart-define=API_BASE_URL=...`.
+- Single flavor, one entry point (`lib/main.dart`). API base URL comes from `.env` (`API_BASE_URL=...`, git-ignored; see `.env.example`) via `envied`: build_runner compiles it into the git-ignored, obfuscated `lib/core/config/env.g.dart`, so a plain `flutter run` uses it. Re-run build_runner after editing `.env`. `--dart-define=API_BASE_URL=...` overrides it; no URL means mock repositories.
 - App ID `com.fastpay.business` (Android and iOS).
 - Android backup is disabled (drafts contain personal data).
 - `bloc_test` caps the analyzer version, which holds `json_serializable` at 6.11 / `json_annotation` at 4.9.

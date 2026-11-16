@@ -47,6 +47,9 @@ app.*.map.json
 # Secrets and credentials: never commit these.
 .env
 .env.*
+!.env.example
+# Generated from .env by envied.
+lib/core/config/env.g.dart
 *.env
 secrets.json
 *.pem
