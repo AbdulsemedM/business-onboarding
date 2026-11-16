@@ -17,6 +17,7 @@ void main() {
     await tester.pumpWidget(App(draftStore: store));
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.text('Continue application'));
     await tester.tap(find.text('Continue application'));
     await tester.pumpAndSettle();
     expect(find.text('Business details'), findsOneWidget);
@@ -44,6 +45,7 @@ void main() {
     await tester.pumpWidget(App(draftStore: store));
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.text('Continue application'));
     await tester.tap(find.text('Continue application'));
     await tester.pumpAndSettle();
     expect(find.text('Operations and compliance'), findsOneWidget);
@@ -56,6 +58,7 @@ void main() {
     );
     await tester.pumpWidget(App(draftStore: store));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Continue application'));
     await tester.tap(find.text('Continue application'));
     await tester.pumpAndSettle();
 
@@ -67,6 +70,7 @@ void main() {
     final semantics = tester.ensureSemantics();
     await tester.pumpWidget(App(draftStore: FakeDraftStore()));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Start application'));
     await tester.tap(find.text('Start application'));
     await tester.pumpAndSettle();
 
@@ -87,6 +91,7 @@ void main() {
     await tester.pumpAndSettle();
     final start = find.text('Start application');
     await tester.scrollUntilVisible(start, 100);
+    await tester.ensureVisible(start);
     await tester.tap(start);
     await tester.pumpAndSettle();
 

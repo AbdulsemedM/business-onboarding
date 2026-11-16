@@ -138,7 +138,7 @@ void main() {
     testWidgets('signed out users land on Sign in', (tester) async {
       await open(tester, location: Routes.status);
       expect(
-        find.text('Sign in to continue your merchant application.'),
+        find.text('Sign in to continue your agent application.'),
         findsOneWidget,
       );
     });
@@ -215,7 +215,7 @@ void main() {
       expect(store.stored, isNull);
       expect(auth.signedIn, isFalse);
       expect(
-        find.text('Sign in to continue your merchant application.'),
+        find.text('Sign in to continue your agent application.'),
         findsOneWidget,
       );
     });
@@ -252,7 +252,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text('Sign in to continue your merchant application.'),
+        find.text('Sign in to continue your agent application.'),
         findsOneWidget,
       );
     });

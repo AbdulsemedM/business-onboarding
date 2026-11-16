@@ -210,7 +210,7 @@ void main() {
       expect(find.text('In review'), findsOneWidget);
     });
 
-    testWidgets('Welcome sends a submitted merchant to the status', (
+    testWidgets('Welcome sends a submitted agent to the status', (
       tester,
     ) async {
       await open(

@@ -1,7 +1,7 @@
 # FastPay Business Onboarding (Flutter)
 
 ## Project overview
-A mobile app (Flutter, iOS + Android) where merchants apply to be onboarded to FastPay.
+A mobile app (Flutter, iOS + Android) where agents apply to be onboarded to FastPay.
 The **backend is already built and working**. This repo is the client only.
 Do not invent endpoints: read `docs/api/` (or ask me) before writing any API code.
 

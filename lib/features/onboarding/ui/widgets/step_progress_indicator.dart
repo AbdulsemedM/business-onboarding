@@ -35,7 +35,7 @@ class StepProgressIndicator extends StatelessWidget {
               Text(
                 l10n.stepProgress(step.number, total),
                 style: theme.textTheme.labelLarge?.copyWith(
-                  color: colors.primary,
+                  color: colors.secondary,
                 ),
               ),
               if (step.next case final next?)

@@ -12,17 +12,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'FastPay Business';
 
   @override
-  String get welcomeTitle => 'Become a FastPay merchant';
+  String get welcomeTitle => 'Become a FastPay agent';
 
   @override
-  String get welcomeBody =>
-      'Tell us about your business, upload a few documents, and we\'ll review your application. Your progress is saved on this device so you can finish later.';
+  String get welcomeBody => 'We save your progress as you go.';
 
   @override
   String get authSignInTitle => 'Sign in';
 
   @override
-  String get authSignInBody => 'Sign in to continue your merchant application.';
+  String get authSignInBody => 'Sign in to continue your agent application.';
 
   @override
   String get authEmail => 'Email';
@@ -116,23 +115,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorPasswordMatch => 'Passwords don\'t match';
 
   @override
-  String get welcomeStepsHeading => 'How it works';
+  String get welcomeStepsHeading => 'Apply in 4 guided steps';
 
   @override
-  String get welcomeStep1Body => 'Your details, address and tax information.';
+  String get welcomeStepBusiness => 'Business';
 
   @override
-  String get welcomeStep2Body => 'IDs, registration, license and photos.';
+  String get welcomeStepDocuments => 'Documents';
 
   @override
-  String get welcomeStep3Body =>
-      'Who processes transactions and your compliance officer.';
+  String get welcomeStepCompliance => 'Compliance';
 
   @override
-  String get welcomeStep4Body => 'Check everything, then submit for review.';
-
-  @override
-  String get welcomeSavedNote => 'Your progress is saved on this device.';
+  String get welcomeStepSubmit => 'Submit';
 
   @override
   String get startApplication => 'Start application';

@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/errors/app_failure.dart';
 import '../../../core/errors/failure_messages.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/brand_logo.dart';
 
-/// Shared layout for the sign-in screens: brand logo, title, intro, form.
+/// Shared layout for the sign-in screens.
 ///
-/// The form sits on a white card over a soft tinted background, and is
-/// capped at a comfortable reading width on tablets. When [onBack] is set,
-/// a back arrow appears and the phone's Back button does the same thing,
-/// so these screens are never a dead end.
+/// A navy header with the logo, title and intro sits over a white sheet that
+/// holds the form. No cards or outlines: fields are softly filled and only
+/// show a border while focused. Content is capped at a comfortable reading
+/// width on tablets. When [onBack] is set, a back arrow appears and the
+/// phone's Back button does the same thing, so these screens are never a
+/// dead end.
 class AuthScaffold extends StatelessWidget {
   const AuthScaffold({
     super.key,
@@ -28,7 +32,7 @@ class AuthScaffold extends StatelessWidget {
   /// Where Back goes. No arrow and no Back handling when null.
   final VoidCallback? onBack;
 
-  /// Pinned under the card, e.g. "Already have an account? Sign in".
+  /// At the bottom of the sheet, e.g. "Already have an account? Sign in".
   final Widget? footer;
 
   static const maxContentWidth = 480.0;
@@ -39,64 +43,94 @@ class AuthScaffold extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    return Scaffold(
-      backgroundColor: colors.surfaceContainerLowest,
-      body: PopScope(
-        canPop: onBack == null,
-        onPopInvokedWithResult: (didPop, _) {
-          if (!didPop) onBack?.call();
-        },
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: maxContentWidth),
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-                children: [
-                  Row(
-                    children: [
-                      if (onBack case final onBack?)
-                        Padding(
-                          padding: const EdgeInsetsDirectional.only(end: 4),
+    Widget constrained(Widget child) => Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: maxContentWidth),
+        child: child,
+      ),
+    );
+
+    final softField = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppTheme.radius),
+      borderSide: BorderSide.none,
+    );
+    final formTheme = theme.copyWith(
+      inputDecorationTheme: theme.inputDecorationTheme.copyWith(
+        fillColor: colors.surfaceContainerHigh,
+        border: softField,
+        enabledBorder: softField,
+        disabledBorder: softField,
+        errorBorder: softField,
+      ),
+    );
+
+    final header = BrandBackdrop(
+      child: SafeArea(
+        bottom: false,
+        child: constrained(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 36),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 48,
+                  child: onBack == null
+                      ? null
+                      : Align(
+                          alignment: AlignmentDirectional.centerStart,
                           child: IconButton(
                             onPressed: onBack,
                             tooltip: l10n.back,
+                            color: AppTheme.white,
                             icon: const Icon(Icons.arrow_back),
                           ),
                         ),
-                      const Expanded(child: BrandLogo(height: 40)),
-                    ],
-                  ),
-                  const SizedBox(height: 28),
-                  Card(
-                    margin: EdgeInsets.zero,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Semantics(
-                            header: true,
-                            child: Text(
-                              title,
-                              style: theme.textTheme.headlineSmall,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            body,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          ...children,
-                        ],
-                      ),
+                ),
+                const SizedBox(height: 8),
+                const BrandBadge(size: 64),
+                const SizedBox(height: 24),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    title,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: AppTheme.white,
                     ),
                   ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  body,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: AppTheme.white.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final sheet = DecoratedBox(
+      decoration: const BoxDecoration(
+        color: AppTheme.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: constrained(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+            child: Theme(
+              data: formTheme,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ...children,
                   if (footer case final footer?) ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     footer,
                   ],
                 ],
@@ -106,10 +140,34 @@ class AuthScaffold extends StatelessWidget {
         ),
       ),
     );
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        // White below the sheet, so short forms never end in a navy gap.
+        backgroundColor: AppTheme.white,
+        body: PopScope(
+          canPop: onBack == null,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) onBack?.call();
+          },
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                header,
+                // Navy behind the sheet's rounded top corners.
+                ColoredBox(color: AppTheme.secondary, child: sheet),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
-/// "New to FastPay? Create an account" under the card.
+/// "New to FastPay? Create an account" at the bottom of the form.
 class AuthSwitchLink extends StatelessWidget {
   const AuthSwitchLink({
     super.key,

@@ -6,7 +6,7 @@ import '../../../core/api/api_client.dart';
 import '../../../core/api/interceptors/error_interceptor.dart';
 import '../../../core/storage/session_store.dart';
 
-/// What the merchant enters to create an account (backend
+/// What the agent enters to create an account (backend
 /// `POST /api/v1/auth/partner/register`). Personal data: never log it.
 class RegistrationForm {
   const RegistrationForm({
@@ -144,7 +144,7 @@ class ApiAuthRepository implements AuthRepository {
   }
 
   /// Uses the account's most recent application, if any.
-  // TODO(product): let the merchant choose when they have several.
+  // TODO(product): let the agent choose when they have several.
   Future<SignInResult> _pickApplication() async {
     final response = await _dio.get<dynamic>(
       '/api/v1/partner/applications',

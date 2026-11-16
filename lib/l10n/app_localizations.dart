@@ -103,13 +103,13 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Become a FastPay merchant'**
+  /// **'Become a FastPay agent'**
   String get welcomeTitle;
 
   /// No description provided for @welcomeBody.
   ///
   /// In en, this message translates to:
-  /// **'Tell us about your business, upload a few documents, and we\'ll review your application. Your progress is saved on this device so you can finish later.'**
+  /// **'We save your progress as you go.'**
   String get welcomeBody;
 
   /// No description provided for @authSignInTitle.
@@ -121,7 +121,7 @@ abstract class AppLocalizations {
   /// No description provided for @authSignInBody.
   ///
   /// In en, this message translates to:
-  /// **'Sign in to continue your merchant application.'**
+  /// **'Sign in to continue your agent application.'**
   String get authSignInBody;
 
   /// No description provided for @authEmail.
@@ -295,38 +295,32 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeStepsHeading.
   ///
   /// In en, this message translates to:
-  /// **'How it works'**
+  /// **'Apply in 4 guided steps'**
   String get welcomeStepsHeading;
 
-  /// No description provided for @welcomeStep1Body.
+  /// No description provided for @welcomeStepBusiness.
   ///
   /// In en, this message translates to:
-  /// **'Your details, address and tax information.'**
-  String get welcomeStep1Body;
+  /// **'Business'**
+  String get welcomeStepBusiness;
 
-  /// No description provided for @welcomeStep2Body.
+  /// No description provided for @welcomeStepDocuments.
   ///
   /// In en, this message translates to:
-  /// **'IDs, registration, license and photos.'**
-  String get welcomeStep2Body;
+  /// **'Documents'**
+  String get welcomeStepDocuments;
 
-  /// No description provided for @welcomeStep3Body.
+  /// No description provided for @welcomeStepCompliance.
   ///
   /// In en, this message translates to:
-  /// **'Who processes transactions and your compliance officer.'**
-  String get welcomeStep3Body;
+  /// **'Compliance'**
+  String get welcomeStepCompliance;
 
-  /// No description provided for @welcomeStep4Body.
+  /// No description provided for @welcomeStepSubmit.
   ///
   /// In en, this message translates to:
-  /// **'Check everything, then submit for review.'**
-  String get welcomeStep4Body;
-
-  /// No description provided for @welcomeSavedNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Your progress is saved on this device.'**
-  String get welcomeSavedNote;
+  /// **'Submit'**
+  String get welcomeStepSubmit;
 
   /// No description provided for @startApplication.
   ///
