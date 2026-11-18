@@ -156,7 +156,7 @@ class _ApplicationCard extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: const BoxDecoration(
-                    color: AppTheme.primary,
+                    color: AppTheme.navy,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -264,7 +264,7 @@ class _Empty extends StatelessWidget {
             child: const Icon(
               Icons.storefront_rounded,
               size: 36,
-              color: AppTheme.primary,
+              color: AppTheme.navy,
             ),
           ),
           const SizedBox(height: 16),

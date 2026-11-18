@@ -9,11 +9,12 @@ import '../../../shared/widgets/brand_logo.dart';
 
 /// Shared layout for the sign-in screens.
 ///
-/// A navy header with the logo, title and intro sits over a white sheet that
-/// holds the form. No cards or outlines. Content is capped at a comfortable reading
-/// width on tablets. When [onBack] is set, a back arrow appears and the
-/// phone's Back button does the same thing, so these screens are never a
-/// dead end.
+/// White background with sky speed lines along the right edge, the logo
+/// badge, a large title and intro, then the form (no card). Fields are the
+/// same as in the application steps. Content is capped at a
+/// comfortable reading width on tablets. When [onBack] is set, a back arrow
+/// appears and the phone's Back button does the same thing, so these screens
+/// are never a dead end.
 class AuthScaffold extends StatelessWidget {
   const AuthScaffold({
     super.key,
@@ -31,7 +32,7 @@ class AuthScaffold extends StatelessWidget {
   /// Where Back goes. No arrow and no Back handling when null.
   final VoidCallback? onBack;
 
-  /// At the bottom of the sheet, e.g. "Already have an account? Sign in".
+  /// Under the panel, e.g. "Already have an account? Sign in".
   final Widget? footer;
 
   static const maxContentWidth = 480.0;
@@ -41,106 +42,102 @@ class AuthScaffold extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
-    Widget constrained(Widget child) => Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: maxContentWidth),
-        child: child,
-      ),
+    final backRow = SizedBox(
+      height: 48,
+      child: onBack == null
+          ? null
+          : Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: IconButton(
+                onPressed: onBack,
+                tooltip: l10n.back,
+                color: AppTheme.navy,
+                icon: const Icon(Icons.arrow_back),
+              ),
+            ),
     );
 
-    final header = BrandBackdrop(
-      child: SafeArea(
-        bottom: false,
-        child: constrained(
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 36),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 48,
-                  child: onBack == null
-                      ? null
-                      : Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: IconButton(
-                            onPressed: onBack,
-                            tooltip: l10n.back,
-                            color: AppTheme.white,
-                            icon: const Icon(Icons.arrow_back),
-                          ),
-                        ),
-                ),
-                const SizedBox(height: 8),
-                const BrandBadge(size: 64),
-                const SizedBox(height: 24),
-                Semantics(
-                  header: true,
-                  child: Text(
-                    title,
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      color: AppTheme.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  body,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.white.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: BrandMark(size: 64),
+        ),
+        const SizedBox(height: 24),
+        Semantics(
+          header: true,
+          child: Text(
+            title,
+            style: theme.textTheme.headlineLarge?.copyWith(
+              color: AppTheme.navy,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+              height: 1.1,
             ),
           ),
         ),
-      ),
-    );
-
-    final sheet = DecoratedBox(
-      decoration: const BoxDecoration(
-        color: AppTheme.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: constrained(
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ...children,
-                if (footer case final footer?) ...[
-                  const SizedBox(height: 16),
-                  footer,
-                ],
-              ],
-            ),
+        const SizedBox(height: 10),
+        Text(
+          body,
+          style: theme.textTheme.titleMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w400,
           ),
         ),
-      ),
+        const SizedBox(height: 32),
+        // No card; standard fields, as in the application steps.
+        ...children,
+        if (footer case final footer?) ...[const SizedBox(height: 12), footer],
+      ],
     );
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        // White below the sheet, so short forms never end in a navy gap.
         backgroundColor: AppTheme.white,
         body: PopScope(
           canPop: onBack == null,
           onPopInvokedWithResult: (didPop, _) {
             if (!didPop) onBack?.call();
           },
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                header,
-                // Navy behind the sheet's rounded top corners.
-                ColoredBox(color: AppTheme.secondary, child: sheet),
-              ],
-            ),
+          // At least one screen tall so the backdrop fills it, with the form
+          // in the middle; the page scrolls when the form is longer.
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Side padding that also caps the width on tablets.
+              final side = ((constraints.maxWidth - maxContentWidth) / 2).clamp(
+                24.0,
+                double.infinity,
+              );
+              return SingleChildScrollView(
+                child: BrandBackdrop(
+                  color: AppTheme.white,
+                  rightOnly: true,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: SafeArea(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(side, 8, side, 24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            backRow,
+                            content,
+                            // Balances the back row so the form sits in the
+                            // middle.
+                            const SizedBox(height: 48),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -148,7 +145,7 @@ class AuthScaffold extends StatelessWidget {
   }
 }
 
-/// "New to FastPay? Create an account" at the bottom of the form.
+/// "New to FastPay? Create an account" under the form.
 class AuthSwitchLink extends StatelessWidget {
   const AuthSwitchLink({
     super.key,
@@ -255,6 +252,7 @@ class PasswordField extends StatefulWidget {
     this.autofillHints,
     this.textInputAction = TextInputAction.done,
     this.onSubmitted,
+    this.helperText,
   });
 
   final TextEditingController controller;
@@ -263,6 +261,9 @@ class PasswordField extends StatefulWidget {
   final Iterable<String>? autofillHints;
   final TextInputAction textInputAction;
   final ValueChanged<String>? onSubmitted;
+
+  /// Shown under the field until there's an error.
+  final String? helperText;
 
   @override
   State<PasswordField> createState() => _PasswordFieldState();
@@ -284,6 +285,7 @@ class _PasswordFieldState extends State<PasswordField> {
       onFieldSubmitted: widget.onSubmitted,
       decoration: InputDecoration(
         labelText: widget.label,
+        helperText: widget.helperText,
         suffixIcon: IconButton(
           tooltip: _obscured ? l10n.authShowPassword : l10n.authHidePassword,
           icon: Icon(_obscured ? Icons.visibility : Icons.visibility_off),

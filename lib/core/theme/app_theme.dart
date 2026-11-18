@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
-/// FastPay brand theme, using the two logo colors exactly: sky blue and navy.
+/// FastPay brand theme, using the two logo colors exactly: navy and sky.
 ///
-/// Sky-blue buttons carry white, bold text (by design choice; the contrast
-/// is about 2.7:1). Text on white backgrounds uses navy.
+/// Navy is the primary color (buttons, progress, selections, text on
+/// white). Sky is the accent: brand details like the speed lines, and the
+/// light tint of a text field while typing.
 class AppTheme {
   const AppTheme._();
 
-  static const primary = Color(0xFF01A8F9);
-  static const secondary = Color(0xFF131D70);
+  static const navy = Color(0xFF131D70);
+  static const sky = Color(0xFF01A8F9);
   static const white = Color(0xFFFFFFFF);
 
   // Tints and neutrals derived from the brand colors.
-  static const _primaryTint = Color(0xFFE5F6FE);
-  static const _secondaryTint = Color(0xFFE7E8F1);
+  static const _navyTint = Color(0xFFE7E8F1);
+  static const _skyTint = Color(0xFFE5F6FE);
   static const _ink = Color(0xFF161C3F);
   static const _inkMuted = Color(0xFF585E7E);
   static const _outline = Color(0xFFC8CCE0);
@@ -26,16 +27,17 @@ class AppTheme {
 
   static ThemeData light() {
     const colors = ColorScheme.light(
-      primary: primary,
+      primary: navy,
       onPrimary: white,
-      primaryContainer: _primaryTint,
-      onPrimaryContainer: secondary,
-      secondary: secondary,
+      primaryContainer: _navyTint,
+      onPrimaryContainer: navy,
+      // Code uses `secondary` for navy text on white; keep it navy.
+      secondary: navy,
       onSecondary: white,
-      secondaryContainer: _secondaryTint,
-      onSecondaryContainer: secondary,
-      tertiary: secondary,
-      onTertiary: white,
+      secondaryContainer: _navyTint,
+      onSecondaryContainer: navy,
+      tertiary: sky,
+      onTertiary: navy,
       error: _error,
       onError: white,
       errorContainer: Color(0xFFFDE8E8),
@@ -50,24 +52,24 @@ class AppTheme {
       onSurfaceVariant: _inkMuted,
       outline: _outline,
       outlineVariant: _outlineSoft,
-      inverseSurface: secondary,
+      inverseSurface: navy,
       onInverseSurface: white,
-      inversePrimary: _primaryTint,
+      inversePrimary: _skyTint,
     );
     return _build(colors);
   }
 
   static ThemeData dark() => _build(
     ColorScheme.fromSeed(
-      seedColor: primary,
-      secondary: secondary,
+      seedColor: navy,
+      tertiary: sky,
       brightness: Brightness.dark,
     ),
   );
 
   static ThemeData _build(ColorScheme colors) {
     final isLight = colors.brightness == Brightness.light;
-    final headingColor = isLight ? secondary : colors.onSurface;
+    final headingColor = isLight ? navy : colors.onSurface;
     const minButtonSize = Size(64, 52);
     final buttonShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(radius),
@@ -84,8 +86,9 @@ class AppTheme {
         return colors.surfaceContainerLow;
       }
       if (states.contains(WidgetState.error)) return colors.errorContainer;
+      // Sky tint: a navy tint would hardly show against the grey fill.
       if (states.contains(WidgetState.focused)) {
-        return colors.primaryContainer;
+        return isLight ? _skyTint : colors.primaryContainer;
       }
       return isLight ? colors.surfaceContainerHigh : colors.surfaceContainer;
     });
@@ -145,6 +148,8 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: fieldFill,
+        errorMaxLines: 3,
+        helperMaxLines: 3,
         border: noBorder,
         enabledBorder: noBorder,
         focusedBorder: noBorder,

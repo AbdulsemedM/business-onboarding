@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,12 +22,12 @@ class WelcomeScreen extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: AppTheme.secondary,
+        backgroundColor: AppTheme.navy,
         body: BlocBuilder<WizardCubit, WizardState>(
           builder: (context, state) {
             if (!state.isLoaded) {
               return const Center(
-                child: CircularProgressIndicator(color: AppTheme.primary),
+                child: CircularProgressIndicator(color: AppTheme.sky),
               );
             }
             // At least one screen tall, with the free space shared between
@@ -106,7 +104,7 @@ class _Hero extends StatelessWidget {
         // Sky blue on navy reads at about 5.5:1.
         Text(
           l10n.welcomeBody,
-          style: theme.textTheme.titleMedium?.copyWith(color: AppTheme.primary),
+          style: theme.textTheme.titleMedium?.copyWith(color: AppTheme.sky),
         ),
       ],
     );
@@ -128,39 +126,30 @@ class _StepsCard extends StatelessWidget {
       (Icons.verified_user_rounded, l10n.welcomeStepCompliance),
       (Icons.send_rounded, l10n.welcomeStepSubmit),
     ];
-    // Frosted: the speed lines behind are blurred, not drawn through text.
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          color: AppTheme.white.withValues(alpha: 0.07),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Semantics(
-                header: true,
-                child: Text(
-                  l10n.welcomeStepsHeading,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: AppTheme.white,
-                  ),
-                ),
+    return FrostedPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            header: true,
+            child: Text(
+              l10n.welcomeStepsHeading,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: AppTheme.white,
               ),
-              const SizedBox(height: 16),
-              for (final (i, (icon, label)) in steps.indexed) ...[
-                _StepRow(
-                  number: i + 1,
-                  total: steps.length,
-                  icon: icon,
-                  label: label,
-                ),
-                if (i < steps.length - 1) const _Connector(),
-              ],
-            ],
+            ),
           ),
-        ),
+          const SizedBox(height: 16),
+          for (final (i, (icon, label)) in steps.indexed) ...[
+            _StepRow(
+              number: i + 1,
+              total: steps.length,
+              icon: icon,
+              label: label,
+            ),
+            if (i < steps.length - 1) const _Connector(),
+          ],
+        ],
       ),
     );
   }
@@ -194,7 +183,7 @@ class _StepRow extends StatelessWidget {
             width: circleSize,
             height: circleSize,
             decoration: const BoxDecoration(
-              color: AppTheme.primary,
+              color: AppTheme.sky,
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 20, color: AppTheme.white),
@@ -237,7 +226,7 @@ class _Connector extends StatelessWidget {
           width: 2,
           height: 14,
           margin: const EdgeInsets.symmetric(vertical: 2),
-          color: AppTheme.primary,
+          color: AppTheme.sky,
         ),
       ),
     );
@@ -258,6 +247,11 @@ class _Actions extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         FilledButton(
+          // White on the navy backdrop (a navy button would disappear).
+          style: FilledButton.styleFrom(
+            backgroundColor: AppTheme.white,
+            foregroundColor: AppTheme.navy,
+          ),
           // After a submit the agent follows the review, not the wizard.
           onPressed: () => context.go(
             state.draft.submitted ? Routes.status : state.step.path,

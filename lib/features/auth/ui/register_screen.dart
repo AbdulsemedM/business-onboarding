@@ -137,17 +137,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 PasswordField(
                   controller: _password,
                   label: l10n.authPassword,
+                  helperText: l10n.authPasswordRule,
                   autofillHints: const [AutofillHints.newPassword],
                   textInputAction: TextInputAction.next,
                   validator: (v) =>
                       _strongPassword(v) ? null : l10n.errorPasswordRule,
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 6, 4, 0),
-                  child: Text(
-                    l10n.authPasswordRule,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
                 ),
                 gap,
                 PasswordField(

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/utils/safe_log.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/api/interceptors/error_interceptor.dart';
 import '../../../core/errors/app_failure.dart';
@@ -113,26 +114,29 @@ class ApiApplicationRepository implements ApplicationRepository {
 
   @override
   Future<ApplicationSnapshot> submit(OnboardingDraft draft) =>
-      _submit(const {});
+      _submit(const {}, localExteriorId: draft.documents.exteriorPhoto?.id);
 
   @override
   Future<ApplicationSnapshot> resubmit(List<String> ids) =>
       _submit({'addressedCorrectionItemIds': ids});
 
-  Future<ApplicationSnapshot> _submit(Map<String, dynamic> body) =>
-      _guard(() async {
-        final base = await _base();
-        try {
-          await _dio.post<dynamic>('$base/submit', data: body);
-        } on DioException catch (error) {
-          final failure = failureFrom(error);
-          if (failure is! ValidationFailure) rethrow;
-          // Say what is missing, in the server's own readable words.
-          final detail = dataOf(await _dio.get<dynamic>(base));
-          throw AppFailure.validation(messages: missingFromJson(detail));
-        }
-        return snapshotFromJson(dataOf(await _dio.get<dynamic>(base)));
-      });
+  Future<ApplicationSnapshot> _submit(
+    Map<String, dynamic> body, {
+    String? localExteriorId,
+  }) => _guard(() async {
+    final base = await _base();
+    try {
+      await _dio.post<dynamic>('$base/submit', data: body);
+    } on DioException catch (error) {
+      final failure = failureFrom(error);
+      if (failure is! ValidationFailure) rethrow;
+      // Say what is missing, in the server's own readable words.
+      final detail = dataOf(await _dio.get<dynamic>(base));
+      _debugPhotos(detail, localExteriorId); // TEMP(diagnostic)
+      throw AppFailure.validation(messages: missingFromJson(detail));
+    }
+    return snapshotFromJson(dataOf(await _dio.get<dynamic>(base)));
+  });
 
   @override
   Future<ApplicationSnapshot> fetch() => _guard(() async {
@@ -145,6 +149,58 @@ class ApiApplicationRepository implements ApplicationRepository {
     } catch (error) {
       throw failureFrom(error);
     }
+  }
+
+  // TEMP(diagnostic): remove after finding why the exterior photo isn't
+  // counted. Logs only codes, flags and counts (debug builds only).
+  void _debugPhotos(Map<String, dynamic> detail, String? localExteriorId) {
+    final docs = detail['requiredDocuments'];
+    final photos = docs is Map ? docs['businessPhotos'] : null;
+    if (photos is! Map) {
+      safeLog('DIAG businessPhotos section missing');
+      return;
+    }
+    for (final slot in (photos['slots'] as List? ?? const [])) {
+      if (slot is! Map) continue;
+      safeLog(
+        'DIAG slot ${slot['documentTypeCode']} required=${slot['required']} '
+        'satisfied=${slot['satisfied']} count=${slot['submittedCount']}',
+      );
+    }
+    final subs = (photos['submissions'] as List? ?? const [])
+        .whereType<Map<dynamic, dynamic>>()
+        .toList();
+    for (final sub in subs) {
+      final reasons = sub['correctionReasons'];
+      // Field names, plus values of status-like fields (no names or ids).
+      final statusLike = {
+        for (final e in sub.entries)
+          if (RegExp(
+            'status|state|verif|upload|active|current|latest|superseded',
+            caseSensitive: false,
+          ).hasMatch('${e.key}'))
+            '${e.key}': e.value is String || e.value is bool || e.value is num
+                ? e.value
+                : e.value.runtimeType,
+      };
+      safeLog(
+        'DIAG submission ${sub['documentTypeCode']} '
+        'requiresCorrection=${sub['requiresCorrection']} '
+        'reasons=${reasons is List ? reasons.length : 0} '
+        'isLocal=${sub['id'] == localExteriorId} '
+        'keys=${sub.keys.join(',')} status=$statusLike',
+      );
+    }
+    safeLog(
+      'DIAG local exterior photo present=${localExteriorId != null} '
+      'onServer=${subs.any((s) => s['id'] == localExteriorId)}',
+    );
+    final missing = detail['onboardingCompletion'];
+    final byStep = missing is Map ? missing['missingByStep'] : null;
+    final docMissing = byStep is Map ? byStep['REQUIRED_DOCUMENTS'] : null;
+    safeLog(
+      'DIAG missing docs count=${docMissing is List ? docMissing.length : 0}',
+    );
   }
 }
 
