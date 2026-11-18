@@ -44,11 +44,12 @@ void main() {
     String fieldName,
     String option,
   ) async {
-    await tester.tap(
-      find.byWidgetPredicate(
-        (w) => w is FormBuilderDropdown && w.name == fieldName,
-      ),
+    final dropdown = find.byWidgetPredicate(
+      (w) => w is FormBuilderDropdown && w.name == fieldName,
     );
+    await tester.ensureVisible(dropdown);
+    await tester.pumpAndSettle();
+    await tester.tap(dropdown);
     await tester.pumpAndSettle();
     await tester.tap(find.text(option).last);
     await tester.pumpAndSettle();
@@ -197,8 +198,19 @@ void main() {
   testWidgets('tax options show their explanations', (tester) async {
     await openStep1(tester);
 
+    final dropdown = find.byWidgetPredicate(
+      (w) => w is FormBuilderDropdown && w.name == Step1Fields.taxDesignation,
+    );
+    await tester.ensureVisible(dropdown);
+    await tester.pumpAndSettle();
+    await tester.tap(dropdown);
+    await tester.pumpAndSettle();
+    // The open menu explains each option.
     expect(find.text('Taxed as an S-Corporation (IRS Form 2553).'), findsOne);
-    await tester.tap(find.text('LLC (C-Corporation Election)'));
+    await tester.tap(find.text('LLC (C-Corporation Election)').last);
+    await tester.pumpAndSettle();
+    // The chosen option's explanation stays under the field.
+    expect(find.text('Taxed as a C-Corporation (IRS Form 8832).'), findsOne);
     await tester.pump(const Duration(seconds: 1));
 
     expect(store.stored?.business.taxDesignation, TaxDesignation.llcCCorp);
@@ -337,10 +349,11 @@ void main() {
     await openStep1(tester, completeStep1);
     expect(find.text('12-3456789'), findsOneWidget);
 
-    await tester.tap(
-      find.text('LLC (Sole Proprietorship / Single-Member LLC - SSN)'),
+    await selectDropdown(
+      tester,
+      Step1Fields.taxDesignation,
+      'LLC (Sole Proprietorship / Single-Member LLC - SSN)',
     );
-    await tester.pumpAndSettle();
 
     expect(field('Business EIN'), findsNothing);
     expect(field("Owner's SSN"), findsOneWidget);
@@ -358,8 +371,11 @@ void main() {
   testWidgets('C-Corp and S-Corp keep the EIN', (tester) async {
     await openStep1(tester, completeStep1);
 
-    await tester.tap(find.text('LLC (S-Corporation Election)'));
-    await tester.pumpAndSettle();
+    await selectDropdown(
+      tester,
+      Step1Fields.taxDesignation,
+      'LLC (S-Corporation Election)',
+    );
 
     expect(find.text('12-3456789'), findsOneWidget);
     await tester.pump(const Duration(seconds: 1));

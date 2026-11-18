@@ -97,7 +97,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'FastPay Business'**
+  /// **'FastAgent'**
   String get appTitle;
 
   /// No description provided for @welcomeTitle.
@@ -1042,6 +1042,12 @@ abstract class AppLocalizations {
   /// **'Business tax designation'**
   String get step1TaxSection;
 
+  /// No description provided for @step1TaxDesignationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax designation'**
+  String get step1TaxDesignationLabel;
+
   /// No description provided for @step1EinLabel.
   ///
   /// In en, this message translates to:
@@ -1516,6 +1522,12 @@ abstract class AppLocalizations {
   /// **'The business must be in good standing with the Secretary of State. Which document do you have?'**
   String get step2RegistrationHelp;
 
+  /// No description provided for @step2RegistrationTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration document'**
+  String get step2RegistrationTypeLabel;
+
   /// No description provided for @regArticlesOfOrganization.
   ///
   /// In en, this message translates to:
@@ -1539,6 +1551,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upload one of these.'**
   String get step2IrsHelp;
+
+  /// No description provided for @step2IrsTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'IRS document'**
+  String get step2IrsTypeLabel;
 
   /// No description provided for @irsEinForm.
   ///
@@ -1569,6 +1587,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upload one document. Choose its type first.'**
   String get step2LicenseHelp;
+
+  /// No description provided for @step2LicenseCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'License or permit category'**
+  String get step2LicenseCategoryLabel;
 
   /// No description provided for @step2LicenseTypeLabel.
   ///

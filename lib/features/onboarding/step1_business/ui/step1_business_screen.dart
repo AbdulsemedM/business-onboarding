@@ -12,7 +12,7 @@ import '../../../../shared/widgets/country_picker_sheet.dart';
 import '../../../../shared/widgets/field_row.dart';
 import '../../../../shared/widgets/name_form_field.dart';
 import '../../../../shared/widgets/phone_form_field.dart';
-import '../../../../shared/widgets/radio_group_form_field.dart';
+import '../../../../shared/widgets/select_form_field.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../logic/step_validation.dart';
 import '../../logic/wizard_cubit.dart';
@@ -203,8 +203,9 @@ class _Step1BusinessScreenState extends State<Step1BusinessScreen> {
             ),
 
             SectionHeader(l10n.step1TaxSection),
-            RadioGroupFormField<TaxDesignation>(
+            SelectFormField<TaxDesignation>(
               name: Step1Fields.taxDesignation,
+              label: l10n.step1TaxDesignationLabel,
               initialValue: _initial.taxDesignation,
               options: _taxOptions(l10n),
               validator: FormBuilderValidators.required(
@@ -563,23 +564,23 @@ class _Step1BusinessScreenState extends State<Step1BusinessScreen> {
     );
   }
 
-  List<RadioOption<TaxDesignation>> _taxOptions(AppLocalizations l10n) => [
-    RadioOption(
+  List<SelectOption<TaxDesignation>> _taxOptions(AppLocalizations l10n) => [
+    SelectOption(
       value: TaxDesignation.llcSoleEin,
       title: l10n.taxLlcSoleEinTitle,
       subtitle: l10n.taxLlcSoleEinBody,
     ),
-    RadioOption(
+    SelectOption(
       value: TaxDesignation.llcSoleSsn,
       title: l10n.taxLlcSoleSsnTitle,
       subtitle: l10n.taxLlcSoleSsnBody,
     ),
-    RadioOption(
+    SelectOption(
       value: TaxDesignation.llcCCorp,
       title: l10n.taxLlcCCorpTitle,
       subtitle: l10n.taxLlcCCorpBody,
     ),
-    RadioOption(
+    SelectOption(
       value: TaxDesignation.llcSCorp,
       title: l10n.taxLlcSCorpTitle,
       subtitle: l10n.taxLlcSCorpBody,

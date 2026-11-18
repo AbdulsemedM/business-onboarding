@@ -1,4 +1,4 @@
-# FastPay Business Onboarding (Flutter)
+# FastAgent: FastPay Business Onboarding (Flutter)
 
 ## Project overview
 A mobile app (Flutter, iOS + Android) where agents apply to be onboarded to FastPay.
@@ -31,7 +31,7 @@ Do not invent endpoints: read `docs/api/` (or ask me) before writing any API cod
 - **The backend is the source of truth.** Where this file and the API differ, follow the API (`docs/api/README.md`) and update this file.
 - Step 1 matches the backend's `initial-business-details`: owner first/last name, business address (line 1 + city required, sublease toggle = `subtenant`), optional time at residence, home landlord when the home is leased, and the EIN or SSN (SSN only for the single-member SSN designation; stored as digits).
 - Single flavor, one entry point (`lib/main.dart`). API base URL comes from `.env` (`API_BASE_URL=...`, git-ignored; see `.env.example`) via `envied`: build_runner compiles it into the git-ignored, obfuscated `lib/core/config/env.g.dart`, so a plain `flutter run` uses it. Re-run build_runner after editing `.env`. `--dart-define=API_BASE_URL=...` overrides it; no URL means mock repositories.
-- App ID `com.fastpay.business` (Android and iOS).
+- App name "FastAgent", app ID `com.fastpay.fastagent` (Android and iOS).
 - Android backup is disabled (drafts contain personal data).
 - `bloc_test` caps the analyzer version, which holds `json_serializable` at 6.11 / `json_annotation` at 4.9.
 - `permission_handler` is pinned to 12.x: 13.x needs AGP 9 / Kotlin 2.3 and breaks the Android build. It is only used for `openAppSettings()`.
@@ -42,6 +42,7 @@ Do not invent endpoints: read `docs/api/` (or ask me) before writing any API cod
 - Step 2 extras agreed: each partner has a full legal name; the DBA toggle asks for the trade name; the optional 4th photo is untagged ("Additional photo"); changing the license type keeps the uploaded file. (Being re-aligned with the backend: names are first/last, 4th photo is `PHOTO_INTERIOR_ADDITIONAL`, DBA has its own `DBA_DOCUMENTATION` upload.)
 - The sublease agreement card in Step 2 follows Step 1's `subtenant` toggle.
 - Brand assets live in `assets/brand/` (logo and icon), generated from the design pack; the Android adaptive icon and iOS app icon come from the same artwork.
+- Pick-one choices (tax designation, ID type, registration, IRS and license documents) are dropdowns (`SelectFormField`): explanations show in the menu and under the field once picked.
 - Short fields sit side by side via `FieldRow` (first/last name, city/state, open/close, years/months); it stacks them on narrow screens or at large text sizes.
 - Brand: colors taken exactly from the logo. Navy `#131D70` (`AppTheme.navy`) is the primary: buttons, progress, selections, text on white. Sky `#01A8F9` (`AppTheme.sky`) is the accent: speed lines, step circles, the focused-field tint. White surfaces (`lib/core/theme/app_theme.dart`). Sign-in screens are white with speed lines on the right; the start screen is navy with a white main button. The app is locked to the light theme (`themeMode: ThemeMode.light`); dark mode is defined but off.
 - Submit/status go through `ApplicationRepository` (mock until wired). After a submit the draft's `submitted` flag sends Welcome to the status screen. Field corrections are fixed in the wizard and resubmitted from Review; document corrections are re-uploaded on the status screen.

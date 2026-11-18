@@ -5,7 +5,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/name_form_field.dart';
-import '../../../../shared/widgets/radio_group_form_field.dart';
+import '../../../../shared/widgets/select_form_field.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../../documents/data/models/document_source.dart';
 import '../../../documents/ui/document_form_field.dart';
@@ -250,13 +250,15 @@ class _Step2DocumentsScreenState extends State<Step2DocumentsScreen> {
     return [
       SectionHeader(l10n.step2RegistrationSection),
       Text(l10n.step2RegistrationHelp),
-      RadioGroupFormField<RegistrationDocType>(
+      const SizedBox(height: 12),
+      SelectFormField<RegistrationDocType>(
         key: const ValueKey(Step2Fields.registrationType),
         name: Step2Fields.registrationType,
+        label: l10n.step2RegistrationTypeLabel,
         initialValue: registrationType,
         options: [
           for (final type in RegistrationDocType.values)
-            RadioOption(value: type, title: registrationLabel(l10n, type)),
+            SelectOption(value: type, title: registrationLabel(l10n, type)),
         ],
         validator: FormBuilderValidators.required(
           errorText: l10n.errorRequired,
@@ -276,13 +278,15 @@ class _Step2DocumentsScreenState extends State<Step2DocumentsScreen> {
 
       SectionHeader(l10n.step2IrsSection),
       Text(l10n.step2IrsHelp),
-      RadioGroupFormField<IrsDocType>(
+      const SizedBox(height: 12),
+      SelectFormField<IrsDocType>(
         key: const ValueKey(Step2Fields.irsType),
         name: Step2Fields.irsType,
+        label: l10n.step2IrsTypeLabel,
         initialValue: irsType,
         options: [
           for (final type in IrsDocType.values)
-            RadioOption(value: type, title: irsLabel(l10n, type)),
+            SelectOption(value: type, title: irsLabel(l10n, type)),
         ],
         validator: FormBuilderValidators.required(
           errorText: l10n.errorRequired,
@@ -301,9 +305,11 @@ class _Step2DocumentsScreenState extends State<Step2DocumentsScreen> {
 
       SectionHeader(l10n.step2LicenseSection),
       Text(l10n.step2LicenseHelp),
-      RadioGroupFormField<LicenseCategory>(
+      const SizedBox(height: 12),
+      SelectFormField<LicenseCategory>(
         key: const ValueKey(Step2Fields.licenseCategory),
         name: Step2Fields.licenseCategory,
+        label: l10n.step2LicenseCategoryLabel,
         initialValue: data.licenseCategory,
         options: _licenseOptions(l10n),
         validator: FormBuilderValidators.required(
@@ -462,27 +468,28 @@ class _Step2DocumentsScreenState extends State<Step2DocumentsScreen> {
       ),
   ];
 
-  List<RadioOption<LicenseCategory>> _licenseOptions(AppLocalizations l10n) => [
-    RadioOption(
-      value: LicenseCategory.general,
-      title: l10n.licenseGeneralTitle,
-    ),
-    RadioOption(
-      value: LicenseCategory.industry,
-      title: l10n.licenseIndustryTitle,
-      subtitle: l10n.licenseIndustryBody,
-    ),
-    RadioOption(
-      value: LicenseCategory.propertySafety,
-      title: l10n.licensePropertySafetyTitle,
-      subtitle: l10n.licensePropertySafetyBody,
-    ),
-    RadioOption(
-      value: LicenseCategory.transportation,
-      title: l10n.licenseTransportationTitle,
-      subtitle: l10n.licenseTransportationBody,
-    ),
-  ];
+  List<SelectOption<LicenseCategory>> _licenseOptions(AppLocalizations l10n) =>
+      [
+        SelectOption(
+          value: LicenseCategory.general,
+          title: l10n.licenseGeneralTitle,
+        ),
+        SelectOption(
+          value: LicenseCategory.industry,
+          title: l10n.licenseIndustryTitle,
+          subtitle: l10n.licenseIndustryBody,
+        ),
+        SelectOption(
+          value: LicenseCategory.propertySafety,
+          title: l10n.licensePropertySafetyTitle,
+          subtitle: l10n.licensePropertySafetyBody,
+        ),
+        SelectOption(
+          value: LicenseCategory.transportation,
+          title: l10n.licenseTransportationTitle,
+          subtitle: l10n.licenseTransportationBody,
+        ),
+      ];
 }
 
 class _InfoNote extends StatelessWidget {

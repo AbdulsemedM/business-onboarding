@@ -55,6 +55,22 @@ void main() {
 
   Finder card(String fieldName) => find.byKey(ValueKey('document:$fieldName'));
 
+  Future<void> selectDropdown(
+    WidgetTester tester,
+    String fieldName,
+    String option,
+  ) async {
+    final dropdown = find.byWidgetPredicate(
+      (w) => w is FormBuilderDropdown && w.name == fieldName,
+    );
+    await tester.ensureVisible(dropdown);
+    await tester.pumpAndSettle();
+    await tester.tap(dropdown);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(option).last);
+    await tester.pumpAndSettle();
+  }
+
   Future<void> tapNext(WidgetTester tester) async {
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
@@ -208,8 +224,11 @@ void main() {
       expect(card(Step2Fields.homeBill(_firstPartner)), findsNothing);
       expect(find.text('This ID lists a P.O. Box address'), findsOneWidget);
 
-      await tester.tap(find.text('Passport'));
-      await tester.pumpAndSettle();
+      await selectDropdown(
+        tester,
+        Step2Fields.idType(_firstPartner),
+        'Passport',
+      );
 
       expect(card(Step2Fields.homeBill(_firstPartner)), findsOneWidget);
       // A passport needs the bill anyway, so the question is hidden.
@@ -299,6 +318,9 @@ void main() {
       ),
     );
     expect(card(Step2Fields.license), findsNothing);
+
+    await selectDropdown(tester, Step2Fields.licenseCategory, 'Transportation');
+    // The chosen category's explanation shows under the field.
     expect(
       find.text(
         'DOT registration, commercial auto insurance, '
@@ -306,9 +328,6 @@ void main() {
       ),
       findsOneWidget,
     );
-
-    await tester.tap(find.text('Transportation'));
-    await tester.pumpAndSettle();
     expect(find.text('License or permit type'), findsOneWidget);
     expect(card(Step2Fields.license), findsNothing);
 
@@ -331,8 +350,11 @@ void main() {
     expect(find.text(_nextStepTitle), findsNothing);
 
     // Another category clears the type, so it must be picked again.
-    await tester.tap(find.text('Industry-specific permit'));
-    await tester.pumpAndSettle();
+    await selectDropdown(
+      tester,
+      Step2Fields.licenseCategory,
+      'Industry-specific permit',
+    );
     await waitForAutosave(tester);
     expect(store.stored?.documents.licenseCategory, LicenseCategory.industry);
     expect(store.stored?.documents.licenseType, isNull);
@@ -349,9 +371,12 @@ void main() {
     expect(card(Step2Fields.businessRegistration), findsNothing);
     expect(card(Step2Fields.irsRegistration), findsNothing);
 
-    await tester.tap(find.text('Articles of Incorporation (corporation)'));
-    await tester.tap(find.text('Recent tax return'));
-    await tester.pumpAndSettle();
+    await selectDropdown(
+      tester,
+      Step2Fields.registrationType,
+      'Articles of Incorporation (corporation)',
+    );
+    await selectDropdown(tester, Step2Fields.irsType, 'Recent tax return');
     await waitForAutosave(tester);
 
     expect(card(Step2Fields.businessRegistration), findsOneWidget);
@@ -495,8 +520,7 @@ void main() {
     await openStep2(tester, completeStep2().withPartnerAdded('p2'));
     expect(card(Step2Fields.idDocument('p2')), findsNothing);
 
-    await tester.tap(find.text('Passport').last);
-    await tester.pumpAndSettle();
+    await selectDropdown(tester, Step2Fields.idType('p2'), 'Passport');
 
     expect(card(Step2Fields.idDocument('p2')), findsOneWidget);
     expect(find.text('Partner 2: photo ID'), findsOneWidget);

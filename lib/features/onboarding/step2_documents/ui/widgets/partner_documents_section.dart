@@ -5,7 +5,7 @@ import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/widgets/group_card.dart';
 import '../../../../../shared/widgets/field_row.dart';
 import '../../../../../shared/widgets/name_form_field.dart';
-import '../../../../../shared/widgets/radio_group_form_field.dart';
+import '../../../../../shared/widgets/select_form_field.dart';
 import '../../../../documents/data/document_repository.dart';
 import '../../../../documents/ui/document_form_field.dart';
 import '../../data/step2_documents_data.dart';
@@ -123,21 +123,21 @@ class PartnerDocumentsSection extends StatelessWidget {
               ],
             ),
           const SizedBox(height: 16),
-          Text(l10n.step2IdTypeLabel, style: theme.textTheme.labelLarge),
-          RadioGroupFormField<PersonalIdType>(
+          SelectFormField<PersonalIdType>(
             key: ValueKey(Step2Fields.idType(id)),
             name: Step2Fields.idType(id),
+            label: l10n.step2IdTypeLabel,
             initialValue: partner.idType,
             options: [
-              RadioOption(
+              SelectOption(
                 value: PersonalIdType.governmentId,
                 title: l10n.idTypeGovernmentId,
               ),
-              RadioOption(
+              SelectOption(
                 value: PersonalIdType.driversLicense,
                 title: l10n.idTypeDriversLicense,
               ),
-              RadioOption(
+              SelectOption(
                 value: PersonalIdType.passport,
                 title: l10n.idTypePassport,
                 subtitle: l10n.idTypePassportNote,

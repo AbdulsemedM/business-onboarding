@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "FastPay Business",
+  "appTitle": "FastAgent",
   "welcomeTitle": "Become a FastPay agent",
   "welcomeBody": "We save your progress as you go.",
   "authSignInTitle": "Sign in",
@@ -196,6 +196,7 @@
   "step1BankSection": "Banking",
   "step1BankName": "Personal bank name",
   "step1TaxSection": "Business tax designation",
+  "step1TaxDesignationLabel": "Tax designation",
   "step1EinLabel": "Business EIN",
   "step1SsnLabel": "Owner's SSN",
 
@@ -308,17 +309,20 @@
 
   "step2RegistrationSection": "Business registration",
   "step2RegistrationHelp": "The business must be in good standing with the Secretary of State. Which document do you have?",
+  "step2RegistrationTypeLabel": "Registration document",
   "regArticlesOfOrganization": "Articles of Organization (LLC)",
   "regArticlesOfIncorporation": "Articles of Incorporation (corporation)",
 
   "step2IrsSection": "IRS registration",
   "step2IrsHelp": "Upload one of these.",
+  "step2IrsTypeLabel": "IRS document",
   "irsEinForm": "EIN form (Form SS-4 or equivalent)",
   "irsSs4Letter": "IRS SS-4 letter",
   "irsRecentTaxReturn": "Recent tax return",
 
   "step2LicenseSection": "Business license or permit",
   "step2LicenseHelp": "Upload one document. Choose its type first.",
+  "step2LicenseCategoryLabel": "License or permit category",
   "step2LicenseTypeLabel": "License or permit type",
   "licenseGeneralBusiness": "General business license",
   "licenseSalesTaxPermit": "Sales tax permit",

@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'FastPay Business';
+  String get appTitle => 'FastAgent';
 
   @override
   String get welcomeTitle => 'Become a FastPay agent';
@@ -553,6 +553,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get step1TaxSection => 'Business tax designation';
 
   @override
+  String get step1TaxDesignationLabel => 'Tax designation';
+
+  @override
   String get step1EinLabel => 'Business EIN';
 
   @override
@@ -834,6 +837,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'The business must be in good standing with the Secretary of State. Which document do you have?';
 
   @override
+  String get step2RegistrationTypeLabel => 'Registration document';
+
+  @override
   String get regArticlesOfOrganization => 'Articles of Organization (LLC)';
 
   @override
@@ -845,6 +851,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get step2IrsHelp => 'Upload one of these.';
+
+  @override
+  String get step2IrsTypeLabel => 'IRS document';
 
   @override
   String get irsEinForm => 'EIN form (Form SS-4 or equivalent)';
@@ -860,6 +869,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get step2LicenseHelp => 'Upload one document. Choose its type first.';
+
+  @override
+  String get step2LicenseCategoryLabel => 'License or permit category';
 
   @override
   String get step2LicenseTypeLabel => 'License or permit type';
